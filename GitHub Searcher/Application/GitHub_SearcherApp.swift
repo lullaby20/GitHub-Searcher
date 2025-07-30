@@ -13,7 +13,7 @@ struct GitHub_SearcherApp: App {
     
     var body: some Scene {
         WindowGroup {
-            AuthorizationView(viewModel: AuthorizationViewModel(dependencies: dependencies))
+            RootView(dependencies: dependencies)
         }
     }
 }

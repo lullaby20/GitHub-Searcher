@@ -46,7 +46,12 @@ fileprivate extension AuthorizationViewModel {
                 guard let self else { return }
                 self.useCase.saveAccessToken(responseModel.accessToken)
                 self.authorizationCoordinator = nil
+                self.setAuthorizedAppState()
             })
             .store(in: &cancellables)
+    }
+    
+    func setAuthorizedAppState() {
+        UserDefaults.standard.set(AppState.authorized.rawValue, forKey: "AppStateRaw")
     }
 }
