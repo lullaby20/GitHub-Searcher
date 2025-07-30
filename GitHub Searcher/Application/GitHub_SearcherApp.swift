@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct GitHub_SearcherApp: App {
+    let dependencies: Dependencies = Dependencies()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AuthorizationView(viewModel: AuthorizationViewModel(dependencies: dependencies))
         }
     }
 }

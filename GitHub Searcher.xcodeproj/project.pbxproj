@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F611634C2E3955FB008DFD20 /* SwiftKeychainWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = F611634B2E3955FB008DFD20 /* SwiftKeychainWrapper */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		F6115E7C2E38F483008DFD20 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		F6115E6E2E38F482008DFD20 /* GitHub Searcher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "GitHub Searcher.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6115E7B2E38F483008DFD20 /* GitHub SearcherTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "GitHub SearcherTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6115E852E38F483008DFD20 /* GitHub SearcherUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "GitHub SearcherUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F61163202E390438008DFD20 /* GitHub-Searcher-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GitHub-Searcher-Info.plist"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F611634C2E3955FB008DFD20 /* SwiftKeychainWrapper in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,6 +81,7 @@
 		F6115E652E38F482008DFD20 = {
 			isa = PBXGroup;
 			children = (
+				F61163202E390438008DFD20 /* GitHub-Searcher-Info.plist */,
 				F6115E702E38F482008DFD20 /* GitHub Searcher */,
 				F6115E7E2E38F483008DFD20 /* GitHub SearcherTests */,
 				F6115E882E38F483008DFD20 /* GitHub SearcherUITests */,
@@ -112,6 +119,7 @@
 			);
 			name = "GitHub Searcher";
 			packageProductDependencies = (
+				F611634B2E3955FB008DFD20 /* SwiftKeychainWrapper */,
 			);
 			productName = "GitHub Searcher";
 			productReference = F6115E6E2E38F482008DFD20 /* GitHub Searcher.app */;
@@ -195,6 +203,9 @@
 			);
 			mainGroup = F6115E652E38F482008DFD20;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F611634A2E3955FB008DFD20 /* XCRemoteSwiftPackageReference "SwiftKeychainWrapper" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F6115E6F2E38F482008DFD20 /* Products */;
 			projectDirPath = "";
@@ -400,6 +411,7 @@
 				DEVELOPMENT_TEAM = 46XVA3WLKT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "GitHub-Searcher-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -428,6 +440,7 @@
 				DEVELOPMENT_TEAM = 46XVA3WLKT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "GitHub-Searcher-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -558,6 +571,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F611634A2E3955FB008DFD20 /* XCRemoteSwiftPackageReference "SwiftKeychainWrapper" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jrendel/SwiftKeychainWrapper.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F611634B2E3955FB008DFD20 /* SwiftKeychainWrapper */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F611634A2E3955FB008DFD20 /* XCRemoteSwiftPackageReference "SwiftKeychainWrapper" */;
+			productName = SwiftKeychainWrapper;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F6115E662E38F482008DFD20 /* Project object */;
 }
