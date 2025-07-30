@@ -27,11 +27,7 @@ fileprivate extension RootView {
     var contentBodyView: some View {
         switch appState {
         case .authorized:
-            Text("Hi authorized")
-            
-            Button("Logout") {
-                appStateRaw = AppState.unAuthorized.rawValue
-            }
+            SearchView(viewModel: SearchViewModel(dependencies: dependencies))
         case .unAuthorized:
             AuthorizationView(viewModel: AuthorizationViewModel(dependencies: dependencies))
         }
