@@ -7,7 +7,8 @@
 
 import Foundation
 
-struct UserResponseModel: Decodable {
+struct UserResponseModel: Decodable, Identifiable {
+    let id = UUID()
     let login: String
     
     enum CodingKeys: String, CodingKey {

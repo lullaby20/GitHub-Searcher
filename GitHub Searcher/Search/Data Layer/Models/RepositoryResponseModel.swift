@@ -8,11 +8,21 @@
 import Foundation
 
 struct RepositoryResponseModel: Decodable, Identifiable {
-    let name: String
     let id = UUID()
+    let name: String
+    let description: String?
+    let owner: UserResponseModel
+    let updatedAt: Date
+    let forksCount: Int
+    let starsCount: Int
     
     enum CodingKeys: String, CodingKey {
         case name
+        case description
+        case owner
+        case updatedAt = "updated_at"
+        case forksCount = "forks"
+        case starsCount = "stargazers_count"
     }
 }
 

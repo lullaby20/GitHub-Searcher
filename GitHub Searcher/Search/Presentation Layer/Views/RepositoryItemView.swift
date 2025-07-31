@@ -1,0 +1,90 @@
+//
+//  RepositoryItemView.swift
+//  GitHub Searcher
+//
+//  Created by Daniyar Merekeyev on 31.07.2025.
+//
+
+import SwiftUI
+
+struct RepositoryItemView: View {
+    let model: RepositoryResponseModel
+    
+    var body: some View {
+        contentBodyView
+    }
+}
+
+fileprivate extension RepositoryItemView {
+    var contentBodyView: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            nameView
+            
+            detailsView
+        }
+    }
+    
+    var detailsView: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            updatedAtDateView
+            
+            starsCountView
+            
+            forksCountView
+            
+            ownerNameView
+        }
+    }
+    
+    var nameView: some View {
+        Text(model.name)
+            .font(.system(size: 18, design: .rounded))
+            .fontDesign(.rounded)
+    }
+    
+    var updatedAtDateView: some View {
+        Text("Updated at: " + model.updatedAt.toShortDateString())
+            .font(.system(size: 12, design: .rounded))
+            .foregroundStyle(.secondary)
+    }
+    
+    var starsCountView: some View {
+        (
+            Text(Image(systemName: "star.fill"))
+                .foregroundStyle(.yellow)
+            +
+            Text(" : \(model.starsCount)")
+        )
+        .font(.system(size: 12, design: .rounded))
+        .foregroundStyle(.secondary)
+    }
+    
+    var forksCountView: some View {
+        (
+            Text(Image(systemName: "tuningfork"))
+                .foregroundStyle(.secondary)
+            +
+            Text(" : \(model.forksCount)")
+        )
+        .font(.system(size: 12, design: .rounded))
+        .foregroundStyle(.secondary)
+    }
+    
+    var ownerNameView: some View {
+        Text("By \(model.owner.login)")
+            .font(.system(size: 12, design: .rounded))
+            .foregroundStyle(.secondary)
+    }
+}
+
+#Preview {
+    let mockModel = RepositoryResponseModel(name: "Mock Repo",
+                                            description: "This is Mock Repo",
+                                            owner: UserResponseModel(login: "Mock User"),
+                                            updatedAt: Date.now,
+                                            forksCount: 2,
+                                            starsCount: 3)
+    
+    RepositoryItemView(model: mockModel)
+        .padding(.horizontal, 16)
+}

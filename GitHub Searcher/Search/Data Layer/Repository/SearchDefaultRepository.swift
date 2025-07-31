@@ -10,9 +10,10 @@ import Combine
 
 final class SearchDefaultRepository {
     private let remoteDataSource: SearchRemoteDataSource
+    private let perPageCount: Int = 30
+    private var totalCount: Int = 0
     private var currentCount: Int = 30
     private var currentPage: Int = 1
-    private var totalCount: Int = 0
     
     init(remoteDataSource: SearchRemoteDataSource) {
         self.remoteDataSource = remoteDataSource
@@ -22,7 +23,9 @@ final class SearchDefaultRepository {
 extension SearchDefaultRepository: SearchRepository {
     // MARK: - Repositories
     func getRepositories(by query: String) -> AnyPublisher<[RepositoryResponseModel], any Error> {
-        remoteDataSource.getRepositories(by: query)
+        currentPage = 1
+        
+        return remoteDataSource.getRepositories(by: query, perPage: perPageCount, page: currentPage)
             .tryMap {
                 self.totalCount = $0.totalCount
                 
@@ -37,7 +40,7 @@ extension SearchDefaultRepository: SearchRepository {
                 .eraseToAnyPublisher()
         }
         
-        return remoteDataSource.getRepositories(by: query)
+        return remoteDataSource.getRepositories(by: query, perPage: perPageCount, page: currentPage + 1)
             .tryMap {
                 self.totalCount = $0.totalCount
                 self.currentPage += 1

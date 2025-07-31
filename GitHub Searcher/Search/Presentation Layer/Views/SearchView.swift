@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SearchView: View {
     @ObservedObject var viewModel: SearchViewModel
+    @State private var navigationPath = NavigationPath()
     
     var body: some View {
         contentBodyView
@@ -25,16 +26,21 @@ struct SearchView: View {
 
 fileprivate extension SearchView {
     var contentBodyView: some View {
-        NavigationStack {
-            List {
-                ForEach(viewModel.repositories) { repository in
-                    Text(repository.name)
-                        .onAppear {
-                            viewModel.getMoreRepositories(after: repository)
-                        }
+        NavigationStack(path: $navigationPath) {
+            VStack(spacing: 8) {
+                pickerView
+                    .padding(.horizontal, 16)
+                
+                List {
+                    switch viewModel.searchingContentType {
+                    case .repositories:
+                        repositoriesView
+                    case .users:
+                        usersView
+                    }
                 }
             }
-            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Start typing...")
+            .searchable(text: searchTextBinding, prompt: "Start typing...")
             .safeAreaInset(edge: .bottom) {
                 if viewModel.isLoadingPagination {
                     ProgressView()
@@ -42,6 +48,44 @@ fileprivate extension SearchView {
                         .progressViewStyle(.circular)
                 }
             }
+        }
+    }
+    
+    var pickerView: some View {
+        Picker("Searching content type", selection: $viewModel.searchingContentType) {
+            ForEach(SearchingContentType.allCases, id: \.self) { searchType in
+                Text(searchType.title)
+            }
+        }
+        .pickerStyle(.segmented)
+    }
+    
+    var repositoriesView: some View {
+        ForEach(viewModel.repositories) { repository in
+            RepositoryItemView(model: repository)
+                .onAppear {
+                    viewModel.getMoreRepositories(after: repository)
+                }
+        }
+    }
+    
+    var usersView: some View {
+        ForEach(viewModel.users) { user in
+            Text(user.login)
+                .onAppear {
+                    viewModel.getMoreUsers(after: user)
+                }
+        }
+    }
+}
+
+fileprivate extension SearchView {
+    var searchTextBinding: Binding<String> {
+        switch viewModel.searchingContentType {
+        case .repositories:
+            return $viewModel.repositoriesSearchText
+        case .users:
+            return $viewModel.usersSearchText
         }
     }
 }

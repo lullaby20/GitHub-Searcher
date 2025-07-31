@@ -14,6 +14,10 @@ protocol Networking {
 
 final class Network: Networking {
     func executeURLRequest<T>(_ urlRequest: URLRequest) -> AnyPublisher<T, Error> where T: Decodable {
+        // MARK: It's safe to do like this because GitHub always use .iso8601
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        
         return URLSession.shared
             .dataTaskPublisher(for: urlRequest)
             .tryMap { result -> Data in
@@ -38,7 +42,7 @@ final class Network: Networking {
                 
                 return result.data
             }
-            .decode(type: T.self, decoder: JSONDecoder())
+            .decode(type: T.self, decoder: decoder)
             .eraseToAnyPublisher()
     }
 }
