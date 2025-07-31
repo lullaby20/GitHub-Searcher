@@ -15,9 +15,14 @@ protocol HasKeychainSecureStorage {
     var keychainSecureStorage: KeychainSecureStorage { get }
 }
 
+protocol HasSearchRepository {
+    var searchRepository: SearchRepository { get }
+}
+
 final class Dependencies:
     HasAuthorizationUseCase,
-    HasKeychainSecureStorage {
+    HasKeychainSecureStorage,
+    HasSearchRepository {
     private let network: Networking
     
     lazy var authorizationUseCase: any AuthorizationUseCase = {
@@ -28,6 +33,10 @@ final class Dependencies:
     
     lazy var keychainSecureStorage: any KeychainSecureStorage = {
         return KeychainSecureDefaultStorage()
+    }()
+    
+    lazy var searchRepository: any SearchRepository = {
+        return SearchDefaultRepository(remoteDataSource: SearchRemoteDefaultDataSource(network: network))
     }()
     
     init() {
