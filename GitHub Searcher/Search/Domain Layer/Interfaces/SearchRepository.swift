@@ -9,6 +9,9 @@ import Foundation
 import Combine
 
 protocol SearchRepository {
-    func getRepositories(by query: String) -> AnyPublisher<String, Error>
-    func getUsers(by query: String) -> AnyPublisher<String, Error>
+    func getRepositories(by query: String) -> AnyPublisher<[RepositoryResponseModel], Error>
+    func getMoreRepositories(by query: String) -> AnyPublisher<[RepositoryResponseModel], Error>
+    
+    func getUsers(by query: String) -> AnyPublisher<[UserResponseModel], Error>
+    func getMoreUsers(by query: String) -> AnyPublisher<[UserResponseModel], Error>
 }

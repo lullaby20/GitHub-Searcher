@@ -17,11 +17,11 @@ final class SearchRemoteDefaultDataSource {
 }
 
 extension SearchRemoteDefaultDataSource: SearchRemoteDataSource {
-    func getRepositories(by query: String) -> AnyPublisher<String, any Error> {
+    func getRepositories(by query: String) -> AnyPublisher<PaginatedGenericModel<RepositoryResponseModel>, any Error> {
         network.executeURLRequest(SearchEndpoint.searchRepositories(query: query).urlRequest)
     }
     
-    func getUsers(by query: String) -> AnyPublisher<String, any Error> {
+    func getUsers(by query: String) -> AnyPublisher<PaginatedGenericModel<UserResponseModel>, any Error> {
         network.executeURLRequest(SearchEndpoint.searchUsers(query: query).urlRequest)
     }
 }

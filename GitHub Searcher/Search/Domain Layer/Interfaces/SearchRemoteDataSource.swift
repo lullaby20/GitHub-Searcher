@@ -9,6 +9,6 @@ import Foundation
 import Combine
 
 protocol SearchRemoteDataSource {
-    func getRepositories(by query: String) -> AnyPublisher<String, Error>
-    func getUsers(by query: String) -> AnyPublisher<String, Error>
+    func getRepositories(by query: String) -> AnyPublisher<PaginatedGenericModel<RepositoryResponseModel>, Error>
+    func getUsers(by query: String) -> AnyPublisher<PaginatedGenericModel<UserResponseModel>, Error>
 }
