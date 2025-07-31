@@ -7,8 +7,9 @@
 
 import Foundation
 
-struct RepositoryResponseModel: Decodable {
+struct RepositoryResponseModel: Decodable, Identifiable {
     let name: String
+    let id = UUID()
     
     enum CodingKeys: String, CodingKey {
         case name
