@@ -10,21 +10,21 @@ import Combine
 
 final class AuthorizationViewModel {
     typealias Dependencies =
-        HasAuthorizationUseCase &
+        HasAuthorizationRepository &
         HasAppConfigUseCase
     
-    private let useCase: AuthorizationUseCase
+    private let repository: AuthorizationRepository
     private let appConfigUseCase: AppConfigUseCase
     private var authorizationCoordinator: AuthorizationCoordinator?
     private var cancellables: Set<AnyCancellable> = .init()
     
     init(dependencies: Dependencies) {
-        self.useCase = dependencies.authorizationUseCase
+        self.repository = dependencies.authorizationRepository
         self.appConfigUseCase = dependencies.appConfigUseCase
     }
     
     func startAuthorizationCoordinator() {
-        let coordinator = AuthorizationCoordinator(useCase: useCase,
+        let coordinator = AuthorizationCoordinator(repository: repository,
                                                    completion: { [unowned self] code in
             guard let code else { return }
             getToken(from: code)
@@ -37,7 +37,7 @@ final class AuthorizationViewModel {
 
 fileprivate extension AuthorizationViewModel {
     func getToken(from code: String) {
-        useCase.getToken(from: code)
+        repository.getToken(from: code)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
                 switch completion {
@@ -48,7 +48,7 @@ fileprivate extension AuthorizationViewModel {
                 }
             }, receiveValue: { [weak self] responseModel in
                 guard let self else { return }
-                self.useCase.saveAccessToken(responseModel.accessToken)
+                self.repository.saveAccessToken(responseModel.accessToken)
                 self.authorizationCoordinator = nil
                 self.setAuthorizedAppState()
             })

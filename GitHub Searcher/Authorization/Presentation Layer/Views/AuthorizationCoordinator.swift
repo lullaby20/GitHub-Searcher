@@ -9,17 +9,17 @@ import Foundation
 import AuthenticationServices
 
 final class AuthorizationCoordinator: NSObject, ASWebAuthenticationPresentationContextProviding {
-    private let useCase: AuthorizationUseCase
+    private let repository: AuthorizationRepository
     private let completion: (String?) -> Void
     private var session: ASWebAuthenticationSession?
 
-    init(useCase: AuthorizationUseCase, completion: @escaping (String?) -> Void) {
-        self.useCase = useCase
+    init(repository: AuthorizationRepository, completion: @escaping (String?) -> Void) {
+        self.repository = repository
         self.completion = completion
     }
 
     func startAuthorization() {
-        guard let url = useCase.authorizationURLRequest.url else {
+        guard let url = repository.authorizationURLRequest.url else {
             print("invalid authorization URL")
             completion(nil)
             return

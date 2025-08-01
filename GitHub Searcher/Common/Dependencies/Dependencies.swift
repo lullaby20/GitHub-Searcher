@@ -11,8 +11,8 @@ protocol HasAppConfigUseCase {
     var appConfigUseCase: AppConfigUseCase { get }
 }
 
-protocol HasAuthorizationUseCase {
-    var authorizationUseCase: AuthorizationUseCase { get }
+protocol HasAuthorizationRepository {
+    var authorizationRepository: AuthorizationRepository { get }
 }
 
 protocol HasSearchRepository {
@@ -25,7 +25,7 @@ protocol HasUserDetailsRemoteDataSource {
 
 final class Dependencies:
     HasAppConfigUseCase,
-    HasAuthorizationUseCase,
+    HasAuthorizationRepository,
     HasSearchRepository,
     HasUserDetailsRemoteDataSource {
     private let network: Networking
@@ -35,10 +35,9 @@ final class Dependencies:
        return AppConfigDefaultUseCase()
     }()
     
-    lazy var authorizationUseCase: any AuthorizationUseCase = {
-        let repository = AuthorizationDefaultRepository(remoteDataSource: AuthorizationRemoteDefaultDataSource(network: network),
-                                                        keychainSecureStorage: keychainSecureStorage)
-        return AuthorizationDefaultUseCase(repository: repository)
+    lazy var authorizationRepository: any AuthorizationRepository = {
+        return AuthorizationDefaultRepository(remoteDataSource: AuthorizationRemoteDefaultDataSource(network: network),
+                                              keychainSecureStorage: keychainSecureStorage)
     }()
     
     lazy var searchRepository: any SearchRepository = {
