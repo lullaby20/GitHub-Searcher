@@ -11,31 +11,59 @@ import Combine
 final class SearchViewModel: ObservableObject {
     typealias Dependencies = HasSearchRepository
     
+    enum State {
+        case empty
+        case loading
+        case results
+        case notFound
+    }
+    
     private let repository: SearchRepository
     private var cancellables: Set<AnyCancellable> = .init()
     
+    private(set) var repositories: [RepositoryResponseModel] = []
+    private(set) var users: [UserResponseModel] = []
+    
+    @Published var searchText: String = ""
     @Published var searchingContentType: SearchingContentType = .repositories
-    
-    @Published var repositoriesSearchText: String = ""
-    @Published var repositories: [RepositoryResponseModel] = []
-    
-    @Published var usersSearchText: String = ""
-    @Published var users: [UserResponseModel] = []
-    
+    @Published var repositoriesSortType: RepositoriesSortType = .stars
+    @Published var state: State = .empty
     @Published var isLoadingPagination: Bool = false
     @Published var alert: Alert?
     
     init(dependencies: Dependencies) {
         self.repository = dependencies.searchRepository
         
-        bindSearchTexts()
+        bindSearchText()
+        bindSearchingContentType()
+        bindRepositoriesSortType()
+    }
+}
+
+extension SearchViewModel {
+    func configureState() {
+        if searchText.isEmpty {
+            self.state = .empty
+            return
+        }
+        
+        switch searchingContentType {
+        case .repositories:
+            self.getRepositories(by: searchText)
+        case .users:
+            self.getUsers(by: searchText)
+        }
     }
 }
 
 // MARK: - Repositories
 extension SearchViewModel {
-    func getRepositories(by query: String) {
-        repository.getRepositories(by: query)
+    func getRepositories(by query: String, shouldShowLoading: Bool = true) {
+        if shouldShowLoading {
+            state = .loading
+        }
+        
+        repository.getRepositories(by: query, sortType: repositoriesSortType)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] status in
                 guard let self else { return }
@@ -46,8 +74,12 @@ extension SearchViewModel {
                     self.alert = .error(message: error.localizedDescription)
                 }
             } receiveValue: { [weak self] repositories in
-                guard let self else { return }
+                guard let self, !repositories.isEmpty else {
+                    self?.state = .notFound
+                    return
+                }
                 self.repositories = repositories
+                self.state = .results
             }
             .store(in: &cancellables)
     }
@@ -57,7 +89,7 @@ extension SearchViewModel {
         
         isLoadingPagination = true
         
-        repository.getMoreRepositories(by: repositoriesSearchText)
+        repository.getMoreRepositories(by: searchText, sortType: repositoriesSortType)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] status in
                 guard let self else { return }
@@ -76,8 +108,13 @@ extension SearchViewModel {
     }
 }
 
+// MARK: - Users
 extension SearchViewModel {
-    func getUsers(by query: String) {
+    func getUsers(by query: String, shouldShowLoading: Bool = true) {
+        if shouldShowLoading {
+            state = .loading
+        }
+        
         repository.getUsers(by: query)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] status in
@@ -89,8 +126,12 @@ extension SearchViewModel {
                     self.alert = .error(message: error.localizedDescription)
                 }
             } receiveValue: { [weak self] users in
-                guard let self else { return }
+                guard let self, !users.isEmpty else {
+                    self?.state = .notFound
+                    return
+                }
                 self.users = users
+                self.state = .results
             }
             .store(in: &cancellables)
     }
@@ -100,7 +141,7 @@ extension SearchViewModel {
         
         isLoadingPagination = true
         
-        repository.getMoreUsers(by: usersSearchText)
+        repository.getMoreUsers(by: searchText)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] status in
                 guard let self else { return }
@@ -154,22 +195,38 @@ extension SearchViewModel {
 }
 
 fileprivate extension SearchViewModel {
-    func bindSearchTexts() {
-        $repositoriesSearchText
+    func bindSearchText() {
+        $searchText
+            .dropFirst()
             .debounce(for: .seconds(1), scheduler: RunLoop.main)
             .removeDuplicates()
             .sink { [weak self] newValue in
-                guard let self, !newValue.isEmpty else { return }
-                self.getRepositories(by: newValue)
+                guard let self else { return }
+                self.configureState()
             }
             .store(in: &cancellables)
-        
-        $usersSearchText
+    }
+    
+    func bindSearchingContentType() {
+        $searchingContentType
+            .dropFirst()
             .debounce(for: .seconds(1), scheduler: RunLoop.main)
             .removeDuplicates()
             .sink { [weak self] newValue in
-                guard let self, !newValue.isEmpty else { return }
-                self.getUsers(by: newValue)
+                guard let self else { return }
+                self.configureState()
+            }
+            .store(in: &cancellables)
+    }
+    
+    func bindRepositoriesSortType() {
+        $repositoriesSortType
+            .dropFirst()
+            .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
+            .removeDuplicates()
+            .sink { [weak self] newValue in
+                guard let self else { return }
+                self.getRepositories(by: searchText)
             }
             .store(in: &cancellables)
     }

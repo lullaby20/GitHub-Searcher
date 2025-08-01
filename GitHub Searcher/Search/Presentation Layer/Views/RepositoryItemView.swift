@@ -17,11 +17,18 @@ struct RepositoryItemView: View {
 
 fileprivate extension RepositoryItemView {
     var contentBodyView: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(spacing: 4) {
             nameView
+                .frame(maxWidth: .infinity, alignment: .leading)
             
             detailsView
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .padding(10)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(.systemGray5))
+        )
     }
     
     var detailsView: some View {

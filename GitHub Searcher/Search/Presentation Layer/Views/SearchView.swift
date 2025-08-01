@@ -29,18 +29,16 @@ fileprivate extension SearchView {
         NavigationStack(path: $navigationPath) {
             VStack(spacing: 8) {
                 pickerView
-                    .padding(.horizontal, 16)
                 
-                List {
-                    switch viewModel.searchingContentType {
-                    case .repositories:
-                        repositoriesView
-                    case .users:
-                        usersView
-                    }
+                ScrollView(showsIndicators: false) {
+                    stateView
                 }
             }
-            .searchable(text: searchTextBinding, prompt: "Start typing...")
+            .padding(.horizontal, 16)
+            .searchable(text: $viewModel.searchText, prompt: "Start typing...")
+            .onSubmit(of: .search) {
+                viewModel.configureState()
+            }
             .safeAreaInset(edge: .bottom) {
                 if viewModel.isLoadingPagination {
                     ProgressView()
@@ -59,34 +57,87 @@ fileprivate extension SearchView {
         }
         .pickerStyle(.segmented)
     }
-    
-    var repositoriesView: some View {
-        ForEach(viewModel.repositories) { repository in
-            RepositoryItemView(model: repository)
-                .onAppear {
-                    viewModel.getMoreRepositories(after: repository)
-                }
-        }
-    }
-    
-    var usersView: some View {
-        ForEach(viewModel.users) { user in
-            Text(user.login)
-                .onAppear {
-                    viewModel.getMoreUsers(after: user)
-                }
-        }
-    }
 }
 
 fileprivate extension SearchView {
-    var searchTextBinding: Binding<String> {
-        switch viewModel.searchingContentType {
-        case .repositories:
-            return $viewModel.repositoriesSearchText
-        case .users:
-            return $viewModel.usersSearchText
+    @ViewBuilder
+    var stateView: some View {
+        switch viewModel.state {
+        case .empty:
+            emptyView
+        case .loading:
+            loadingView
+        case .results:
+            resultsView
+        case .notFound:
+            notFoundView
         }
+    }
+    
+    @ViewBuilder
+    var loadingView: some View {
+        VStack(spacing: 10) {
+            switch viewModel.searchingContentType {
+            case .repositories:
+                repositoriesSortTypeView
+                
+                ForEach(0..<6) { _ in
+                    RepositoryItemLoadingView()
+                }
+            case .users:
+                ForEach(0..<6) { _ in
+                    RepositoryItemLoadingView()
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var resultsView: some View {
+        LazyVStack(spacing: 10) {
+            switch viewModel.searchingContentType {
+            case .repositories:
+                repositoriesSortTypeView
+                
+                ForEach(viewModel.repositories) { repository in
+                    RepositoryItemView(model: repository)
+                        .onAppear {
+                            viewModel.getMoreRepositories(after: repository)
+                        }
+                }
+            case .users:
+                ForEach(viewModel.users) { user in
+                    Text(user.login)
+                        .onAppear {
+                            viewModel.getMoreUsers(after: user)
+                        }
+                }
+            }
+        }
+    }
+    
+    var repositoriesSortTypeView: some View {
+        HStack(spacing: 0) {
+            Spacer()
+            
+            Text("Sort by:")
+            
+            Picker("Sort", selection: $viewModel.repositoriesSortType) {
+                ForEach(RepositoriesSortType.allCases, id: \.self) { sortType in
+                    Text(sortType.presentationName)
+                }
+            }
+            .pickerStyle(.menu)
+        }
+    }
+    
+    var emptyView: some View {
+        ContentUnavailableView("Start typing what you're looking for...",
+                               systemImage: "magnifyingglass")
+    }
+    
+    var notFoundView: some View {
+        ContentUnavailableView.search(text: viewModel.searchText)
     }
 }
 

@@ -8,19 +8,20 @@
 import Foundation
 
 enum SearchEndpoint {
-    case searchRepositories(query: String, perPage: Int, page: Int)
+    case searchRepositories(query: String, sort: String, perPage: Int, page: Int)
     case searchUsers(query: String)
 }
 
 extension SearchEndpoint {
     var urlRequest: URLRequest {
         switch self {
-        case .searchRepositories(let query, let perPage, let page):
+        case .searchRepositories(let query, let sort, let perPage, let page):
             guard let url = URL.getAPIURL(by: "/search/repositories") else { preconditionFailure() }
             var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
             
             var queryItems: [URLQueryItem] = []
             queryItems.append(URLQueryItem(name: "q", value: query))
+            queryItems.append(URLQueryItem(name: "sort", value: sort))
             queryItems.append(URLQueryItem(name: "per_page", value: "\(perPage)"))
             queryItems.append(URLQueryItem(name: "page", value: "\(page)"))
             urlComponents?.queryItems = queryItems

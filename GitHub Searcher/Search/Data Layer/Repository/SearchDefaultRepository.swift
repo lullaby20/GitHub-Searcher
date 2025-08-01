@@ -22,10 +22,10 @@ final class SearchDefaultRepository {
 
 extension SearchDefaultRepository: SearchRepository {
     // MARK: - Repositories
-    func getRepositories(by query: String) -> AnyPublisher<[RepositoryResponseModel], any Error> {
+    func getRepositories(by query: String, sortType: RepositoriesSortType) -> AnyPublisher<[RepositoryResponseModel], any Error> {
         currentPage = 1
         
-        return remoteDataSource.getRepositories(by: query, perPage: perPageCount, page: currentPage)
+        return remoteDataSource.getRepositories(by: query, sortType: sortType, perPage: perPageCount, page: currentPage)
             .tryMap {
                 self.totalCount = $0.totalCount
                 
@@ -34,13 +34,13 @@ extension SearchDefaultRepository: SearchRepository {
             .eraseToAnyPublisher()
     }
     
-    func getMoreRepositories(by query: String) -> AnyPublisher<[RepositoryResponseModel], any Error> {
+    func getMoreRepositories(by query: String, sortType: RepositoriesSortType) -> AnyPublisher<[RepositoryResponseModel], any Error> {
         guard currentCount < totalCount else {
             return Empty()
                 .eraseToAnyPublisher()
         }
         
-        return remoteDataSource.getRepositories(by: query, perPage: perPageCount, page: currentPage + 1)
+        return remoteDataSource.getRepositories(by: query, sortType: sortType, perPage: perPageCount, page: currentPage + 1)
             .tryMap {
                 self.totalCount = $0.totalCount
                 self.currentPage += 1
