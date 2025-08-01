@@ -21,9 +21,9 @@ extension AuthorizationRemoteDefaultDataSource: AuthorizationRemoteDataSource {
                   clientID: String,
                   clientSecret: String,
                   redirectURI: String) -> AnyPublisher<AuthorizationResponseModel, any Error> {
-        network.executeURLRequest(AuthorizationEndpoint.getToken(code: code,
-                                                                 clientID: clientID,
-                                                                 clientSecret: clientSecret,
-                                                                 redirectURI: redirectURI).urlRequest)
+        network.execute(AuthorizationEndpoint.getToken(code: code,
+                                                       clientID: clientID,
+                                                       clientSecret: clientSecret,
+                                                       redirectURI: redirectURI))
     }
 }

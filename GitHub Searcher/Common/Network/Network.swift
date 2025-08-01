@@ -9,12 +9,25 @@ import Foundation
 import Combine
 
 protocol Networking {
-    func executeURLRequest<T>(_ urlRequest: URLRequest) -> AnyPublisher<T, Error> where T: Decodable
+    func execute<T>(_ requestProviding: RequestProviding) -> AnyPublisher<T, Error> where T: Decodable
 }
 
 final class Network: Networking {
-    func executeURLRequest<T>(_ urlRequest: URLRequest) -> AnyPublisher<T, Error> where T: Decodable {
-        // MARK: It's safe to do like this because GitHub always use .iso8601
+    private let keychainSecureStorage: KeychainSecureStorage
+    
+    init(keychainSecureStorage: KeychainSecureStorage) {
+        self.keychainSecureStorage = keychainSecureStorage
+    }
+    
+    func execute<T>(_ requestProviding: RequestProviding) -> AnyPublisher<T, Error> where T: Decodable {
+        var urlRequest = requestProviding.urlRequest
+        
+        if requestProviding.shouldAddAuthorization,
+           let accessToken = keychainSecureStorage.getValue(for: .accessToken) {
+            urlRequest.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        }
+        
+        // MARK: It's safe to do like this because GitHub always use .iso8601 format
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         

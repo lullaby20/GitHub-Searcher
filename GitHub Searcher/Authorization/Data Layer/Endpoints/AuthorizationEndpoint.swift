@@ -15,7 +15,11 @@ enum AuthorizationEndpoint {
     case authorization(clientID: String, redirectURI: String)
 }
 
-extension AuthorizationEndpoint {
+extension AuthorizationEndpoint: RequestProviding {
+    var shouldAddAuthorization: Bool {
+        false
+    }
+    
     var urlRequest: URLRequest {
         switch self {
         case .getToken(let code, let clientID, let clientSecret, let redirectURI):

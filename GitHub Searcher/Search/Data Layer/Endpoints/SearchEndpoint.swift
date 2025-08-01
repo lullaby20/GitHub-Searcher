@@ -12,7 +12,11 @@ enum SearchEndpoint {
     case searchUsers(query: String)
 }
 
-extension SearchEndpoint {
+extension SearchEndpoint: RequestProviding {
+    var shouldAddAuthorization: Bool {
+        true
+    }
+    
     var urlRequest: URLRequest {
         switch self {
         case .searchRepositories(let query, let sort, let perPage, let page):
