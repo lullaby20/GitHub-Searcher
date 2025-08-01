@@ -9,14 +9,18 @@ import Foundation
 import Combine
 
 final class AuthorizationViewModel {
-    typealias Dependencies = HasAuthorizationUseCase
+    typealias Dependencies =
+        HasAuthorizationUseCase &
+        HasAppConfigUseCase
     
     private let useCase: AuthorizationUseCase
+    private let appConfigUseCase: AppConfigUseCase
     private var authorizationCoordinator: AuthorizationCoordinator?
     private var cancellables: Set<AnyCancellable> = .init()
     
     init(dependencies: Dependencies) {
         self.useCase = dependencies.authorizationUseCase
+        self.appConfigUseCase = dependencies.appConfigUseCase
     }
     
     func startAuthorizationCoordinator() {
@@ -52,6 +56,6 @@ fileprivate extension AuthorizationViewModel {
     }
     
     func setAuthorizedAppState() {
-        UserDefaults.standard.set(AppState.authorized.rawValue, forKey: "AppStateRaw")
+        appConfigUseCase.changeAppState(to: .authorized)
     }
 }

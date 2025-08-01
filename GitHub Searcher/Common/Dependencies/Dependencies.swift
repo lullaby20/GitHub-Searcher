@@ -7,6 +7,10 @@
 
 import Foundation
 
+protocol HasAppConfigUseCase {
+    var appConfigUseCase: AppConfigUseCase { get }
+}
+
 protocol HasAuthorizationUseCase {
     var authorizationUseCase: AuthorizationUseCase { get }
 }
@@ -20,11 +24,16 @@ protocol HasUserDetailsRemoteDataSource {
 }
 
 final class Dependencies:
+    HasAppConfigUseCase,
     HasAuthorizationUseCase,
     HasSearchRepository,
     HasUserDetailsRemoteDataSource {
     private let network: Networking
     private let keychainSecureStorage: KeychainSecureStorage
+    
+    lazy var appConfigUseCase: any AppConfigUseCase = {
+       return AppConfigDefaultUseCase()
+    }()
     
     lazy var authorizationUseCase: any AuthorizationUseCase = {
         let repository = AuthorizationDefaultRepository(remoteDataSource: AuthorizationRemoteDefaultDataSource(network: network),

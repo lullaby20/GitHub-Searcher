@@ -13,7 +13,7 @@ struct GitHub_SearcherApp: App {
     
     var body: some Scene {
         WindowGroup {
-            RootView(dependencies: dependencies)
+            RootView(viewModel: RootViewModel(dependencies: dependencies))
         }
     }
 }
