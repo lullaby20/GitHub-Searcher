@@ -14,6 +14,7 @@ final class UserDetailsViewModel: ObservableObject {
     enum RepositoriesState {
         case loading
         case content
+        case empty
     }
     
     private let model: UserResponseModel
@@ -54,7 +55,10 @@ extension UserDetailsViewModel {
                     print("error - \(error.localizedDescription)")
                 }
             } receiveValue: { [weak self] repositories in
-                guard let self else { return }
+                guard let self, !repositories.isEmpty else {
+                    self?.repositoriesState = .empty
+                    return
+                }
                 self.repositories = repositories
                 self.repositoriesState = .content
             }

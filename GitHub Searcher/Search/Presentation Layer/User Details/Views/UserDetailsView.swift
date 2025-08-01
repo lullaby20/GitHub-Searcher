@@ -100,6 +100,10 @@ fileprivate extension UserDetailsView {
                 }
                 .buttonStyle(.plain)
             }
+        case .empty:
+            ContentUnavailableView("Nothing here yet!",
+                                   systemImage: "magnifyingglass",
+                                   description: Text("Maybe this user is working on something awesome in private."))
         }
     }
 }
