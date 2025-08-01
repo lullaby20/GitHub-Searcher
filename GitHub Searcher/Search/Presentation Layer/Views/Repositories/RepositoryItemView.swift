@@ -46,7 +46,6 @@ fileprivate extension RepositoryItemView {
     var nameView: some View {
         Text(model.name)
             .font(.system(size: 18, design: .rounded))
-            .fontDesign(.rounded)
     }
     
     var updatedAtDateView: some View {
@@ -85,12 +84,14 @@ fileprivate extension RepositoryItemView {
 }
 
 #Preview {
-    let mockModel = RepositoryResponseModel(name: "Mock Repo",
+    let mockModel = RepositoryResponseModel(id: 0,
+                                            name: "Mock Repo",
                                             description: "This is Mock Repo",
-                                            owner: UserResponseModel(login: "Mock User"),
+                                            owner: UserResponseModel(id: 0, login: "Mock User", avatarUrlPath: ""),
                                             updatedAt: Date.now,
                                             forksCount: 2,
-                                            starsCount: 3)
+                                            starsCount: 3,
+                                            htmlUrlPath: "")
     
     RepositoryItemView(model: mockModel)
         .padding(.horizontal, 16)

@@ -42,6 +42,8 @@ final class SearchViewModel: ObservableObject {
 
 extension SearchViewModel {
     func configureState() {
+        guard state != .loading else { return }
+        
         if searchText.isEmpty {
             self.state = .empty
             return

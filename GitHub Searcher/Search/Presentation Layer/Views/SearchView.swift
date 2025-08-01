@@ -76,7 +76,7 @@ fileprivate extension SearchView {
     
     @ViewBuilder
     var loadingView: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 5) {
             switch viewModel.searchingContentType {
             case .repositories:
                 repositoriesSortTypeView
@@ -86,7 +86,7 @@ fileprivate extension SearchView {
                 }
             case .users:
                 ForEach(0..<6) { _ in
-                    RepositoryItemLoadingView()
+                    UserItemLoadingView()
                 }
             }
         }
@@ -94,7 +94,7 @@ fileprivate extension SearchView {
     
     @ViewBuilder
     var resultsView: some View {
-        LazyVStack(spacing: 10) {
+        LazyVStack(spacing: 5) {
             switch viewModel.searchingContentType {
             case .repositories:
                 repositoriesSortTypeView
@@ -107,7 +107,7 @@ fileprivate extension SearchView {
                 }
             case .users:
                 ForEach(viewModel.users) { user in
-                    Text(user.login)
+                    UserItemView(model: user)
                         .onAppear {
                             viewModel.getMoreUsers(after: user)
                         }
@@ -118,8 +118,6 @@ fileprivate extension SearchView {
     
     var repositoriesSortTypeView: some View {
         HStack(spacing: 0) {
-            Spacer()
-            
             Text("Sort by:")
             
             Picker("Sort", selection: $viewModel.repositoriesSortType) {
@@ -129,6 +127,7 @@ fileprivate extension SearchView {
             }
             .pickerStyle(.menu)
         }
+        .frame(maxWidth: .infinity, alignment: .trailing)
     }
     
     var emptyView: some View {
