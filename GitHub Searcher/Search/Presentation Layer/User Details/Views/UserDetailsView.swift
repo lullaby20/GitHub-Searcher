@@ -37,6 +37,7 @@ fileprivate extension UserDetailsView {
                 repositoriesView
             }
             .padding(.top, 10)
+            .padding(.bottom, 16)
         }
         .padding(.horizontal, 16)
         .navigationTitle("User details")

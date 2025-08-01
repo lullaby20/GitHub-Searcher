@@ -139,6 +139,7 @@ fileprivate extension SearchView {
                 }
             }
         }
+        .padding(.bottom, 16)
     }
     
     var repositoriesSortTypePickerView: some View {
