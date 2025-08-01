@@ -39,6 +39,7 @@ extension SearchEndpoint: RequestProviding {
             var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
             var queryItems: [URLQueryItem] = []
             queryItems.append(URLQueryItem(name: "q", value: query))
+            queryItems.append(URLQueryItem(name: "sort", value: "followers"))
             urlComponents?.queryItems = queryItems
             
             guard let urlComponentsURL = urlComponents?.url else { preconditionFailure() }
