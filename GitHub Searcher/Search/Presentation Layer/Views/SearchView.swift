@@ -21,6 +21,14 @@ struct SearchView: View {
                           dismissButton: .cancel(Text(alert.dismissButtonTitle)))
                 }
             }
+            .sheet(item: $viewModel.sheet, onDismiss: { [unowned viewModel] in
+                viewModel.sheet = nil
+            }) { sheet in
+                switch sheet {
+                case .safari(let url):
+                    SafariView(url: url)
+                }
+            }
     }
 }
 
@@ -28,11 +36,12 @@ fileprivate extension SearchView {
     var contentBodyView: some View {
         NavigationStack(path: $navigationPath) {
             VStack(spacing: 8) {
-                pickerView
+                contentTypePickerView
                 
                 ScrollView(showsIndicators: false) {
                     stateView
                 }
+                .scrollDismissesKeyboard(.immediately)
             }
             .padding(.horizontal, 16)
             .searchable(text: $viewModel.searchText, prompt: "Start typing...")
@@ -46,10 +55,15 @@ fileprivate extension SearchView {
                         .progressViewStyle(.circular)
                 }
             }
+            .navigationTitle("GitHub Searcher")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(for: UserResponseModel.self) { user in
+                UserDetailsView(viewModel: viewModel.makeUserDetailsViewModel(for: user))
+            }
         }
     }
     
-    var pickerView: some View {
+    var contentTypePickerView: some View {
         Picker("Searching content type", selection: $viewModel.searchingContentType) {
             ForEach(SearchingContentType.allCases, id: \.self) { searchType in
                 Text(searchType.title)
@@ -79,7 +93,7 @@ fileprivate extension SearchView {
         VStack(spacing: 5) {
             switch viewModel.searchingContentType {
             case .repositories:
-                repositoriesSortTypeView
+                repositoriesSortTypePickerView
                 
                 ForEach(0..<6) { _ in
                     RepositoryItemLoadingView()
@@ -97,32 +111,45 @@ fileprivate extension SearchView {
         LazyVStack(spacing: 5) {
             switch viewModel.searchingContentType {
             case .repositories:
-                repositoriesSortTypeView
+                repositoriesSortTypePickerView
                 
                 ForEach(viewModel.repositories) { repository in
-                    RepositoryItemView(model: repository)
-                        .onAppear {
-                            viewModel.getMoreRepositories(after: repository)
-                        }
+                    Button {
+                        guard let url = URL(string: repository.htmlUrlPath) else { return }
+                        viewModel.sheet = .safari(url: url)
+                    } label: {
+                        RepositoryItemView(model: repository)
+                    }
+                    .buttonStyle(.plain)
+                    .onAppear {
+                        viewModel.getMoreRepositories(after: repository)
+                    }
                 }
             case .users:
                 ForEach(viewModel.users) { user in
-                    UserItemView(model: user)
-                        .onAppear {
-                            viewModel.getMoreUsers(after: user)
-                        }
+                    Button {
+                        navigationPath.append(user)
+                    } label: {
+                        UserItemView(model: user)
+                    }
+                    .buttonStyle(.plain)
+                    .onAppear {
+                        viewModel.getMoreUsers(after: user)
+                    }
                 }
             }
         }
     }
     
-    var repositoriesSortTypeView: some View {
+    var repositoriesSortTypePickerView: some View {
         HStack(spacing: 0) {
             Text("Sort by:")
+                .fontDesign(.rounded)
             
             Picker("Sort", selection: $viewModel.repositoriesSortType) {
                 ForEach(RepositoriesSortType.allCases, id: \.self) { sortType in
                     Text(sortType.presentationName)
+                        .fontDesign(.rounded)
                 }
             }
             .pickerStyle(.menu)
@@ -131,7 +158,7 @@ fileprivate extension SearchView {
     }
     
     var emptyView: some View {
-        ContentUnavailableView("Start typing what you're looking for...",
+        ContentUnavailableView("Start typing what you're searching for...",
                                systemImage: "magnifyingglass")
     }
     

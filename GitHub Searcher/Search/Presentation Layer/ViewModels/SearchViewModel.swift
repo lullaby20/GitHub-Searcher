@@ -9,7 +9,9 @@ import Foundation
 import Combine
 
 final class SearchViewModel: ObservableObject {
-    typealias Dependencies = HasSearchRepository
+    typealias Dependencies =
+        HasSearchRepository &
+        HasUserDetailsRemoteDataSource
     
     enum State {
         case empty
@@ -18,6 +20,7 @@ final class SearchViewModel: ObservableObject {
         case notFound
     }
     
+    private let dependencies: Dependencies
     private let repository: SearchRepository
     private var cancellables: Set<AnyCancellable> = .init()
     
@@ -30,8 +33,10 @@ final class SearchViewModel: ObservableObject {
     @Published var state: State = .empty
     @Published var isLoadingPagination: Bool = false
     @Published var alert: Alert?
+    @Published var sheet: Sheet?
     
     init(dependencies: Dependencies) {
+        self.dependencies = dependencies
         self.repository = dependencies.searchRepository
         
         bindSearchText()
@@ -160,6 +165,10 @@ extension SearchViewModel {
             }
             .store(in: &cancellables)
     }
+    
+    func makeUserDetailsViewModel(for user: UserResponseModel) -> UserDetailsViewModel {
+        UserDetailsViewModel(model: user, dependencies: dependencies)
+    }
 }
 
 extension SearchViewModel {
@@ -191,6 +200,17 @@ extension SearchViewModel {
             switch self {
             case .error:
                 "error"
+            }
+        }
+    }
+    
+    enum Sheet: Identifiable {
+        case safari(url: URL)
+        
+        var id: String {
+            switch self {
+            case .safari:
+                "safari"
             }
         }
     }
