@@ -23,29 +23,47 @@ protocol HasUserDetailsRemoteDataSource {
     var userDetailsRemoteDataSource: UserDetailsRemoteDataSource { get }
 }
 
+protocol HasProfileRemoteDataSource {
+    var profileRemoteDataSource: ProfileRemoteDataSource { get }
+}
+
+protocol HasViewHistoryLocalDataSource {
+    var viewHistoryLocalDataSource: ViewHistoryLocalDataSource { get }
+}
+
 final class Dependencies:
     HasAppConfigUseCase,
     HasAuthorizationRepository,
     HasSearchRepository,
-    HasUserDetailsRemoteDataSource {
+    HasUserDetailsRemoteDataSource,
+    HasProfileRemoteDataSource,
+    HasViewHistoryLocalDataSource {
     private let network: Networking
     private let keychainSecureStorage: KeychainSecureStorage
     
     lazy var appConfigUseCase: any AppConfigUseCase = {
-       return AppConfigDefaultUseCase()
+        AppConfigDefaultUseCase(keychainSecureStorage: keychainSecureStorage)
     }()
     
     lazy var authorizationRepository: any AuthorizationRepository = {
-        return AuthorizationDefaultRepository(remoteDataSource: AuthorizationRemoteDefaultDataSource(network: network),
-                                              keychainSecureStorage: keychainSecureStorage)
+        AuthorizationDefaultRepository(remoteDataSource: AuthorizationRemoteDefaultDataSource(network: network),
+                                       keychainSecureStorage: keychainSecureStorage)
     }()
     
     lazy var searchRepository: any SearchRepository = {
-        return SearchDefaultRepository(remoteDataSource: SearchRemoteDefaultDataSource(network: network))
+        SearchDefaultRepository(remoteDataSource: SearchRemoteDefaultDataSource(network: network))
     }()
     
     lazy var userDetailsRemoteDataSource: any UserDetailsRemoteDataSource = {
-        return UserDetailsRemoteDefaultDataSource(network: network)
+        UserDetailsRemoteDefaultDataSource(network: network)
+    }()
+    
+    lazy var profileRemoteDataSource: any ProfileRemoteDataSource = {
+         ProfileRemoteDefaultDataSource(network: network)
+    }()
+    
+    lazy var viewHistoryLocalDataSource: any ViewHistoryLocalDataSource = {
+        ViewHistoryLocalDefaultDataSource()
     }()
     
     init() {

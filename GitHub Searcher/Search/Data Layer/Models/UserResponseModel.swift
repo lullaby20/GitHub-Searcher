@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct UserResponseModel: Decodable, Identifiable {
+struct UserResponseModel: Codable, Identifiable {
     let id: Int
     let login: String
     let avatarUrlPath: String

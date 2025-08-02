@@ -21,19 +21,21 @@ fileprivate extension RootView {
     var contentBodyView: some View {
         switch viewModel.appState {
         case .authorized:
-            TabView {
-                SearchView(viewModel: SearchViewModel(dependencies: viewModel.dependencies))
+            TabView(selection: $viewModel.selectedTabIndex) {
+                SearchView(viewModel: viewModel.searchViewModel)
                     .tabItem {
                         Label("Search", systemImage: "magnifyingglass")
                     }
+                    .tag(0)
                 
-                ProfileView(viewModel: ProfileViewModel(dependencies: viewModel.dependencies))
+                ProfileView(viewModel: viewModel.profileViewModel)
                     .tabItem {
                         Label("Profile", systemImage: "person.crop.circle.fill")
                     }
+                    .tag(1)
             }
         case .unauthorized:
-            AuthorizationView(viewModel: AuthorizationViewModel(dependencies: viewModel.dependencies))
+            AuthorizationView(viewModel: viewModel.authorizationViewModel)
         }
     }
 }

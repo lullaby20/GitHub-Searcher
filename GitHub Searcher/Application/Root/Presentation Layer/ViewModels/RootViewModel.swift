@@ -15,6 +15,19 @@ final class RootViewModel: ObservableObject {
     private var cancellables: Set<AnyCancellable> = .init()
     
     @Published var appState: AppState
+    @Published var selectedTabIndex: Int = 0
+    
+    lazy var searchViewModel: SearchViewModel = {
+        SearchViewModel(dependencies: dependencies)
+    }()
+    
+    lazy var profileViewModel: ProfileViewModel = {
+        ProfileViewModel(dependencies: dependencies)
+    }()
+    
+    var authorizationViewModel: AuthorizationViewModel {
+        AuthorizationViewModel(dependencies: dependencies)
+    }
     
     init(dependencies: Dependencies) {
         self.dependencies = dependencies
@@ -31,6 +44,7 @@ fileprivate extension RootViewModel {
             .sink { [weak self] state in
                 guard let self else { return }
                 self.appState = state
+                self.selectedTabIndex = 0
             }
             .store(in: &cancellables)
     }

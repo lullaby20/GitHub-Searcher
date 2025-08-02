@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct RepositoryResponseModel: Decodable, Identifiable {
+struct RepositoryResponseModel: Codable, Identifiable {
     let id: Int
     let name: String
     let description: String?
