@@ -10,7 +10,7 @@ import Combine
 
 final class UserItemViewModel: ObservableObject {
     private let model: UserResponseModel
-    private let viewHistoryLocalDataSource: ViewHistoryLocalDataSource
+    private let viewHistoryRepository: ViewHistoryRepository
     private var cancellables: Set<AnyCancellable> = .init()
     
     let onTapSubject: PassthroughSubject<UserResponseModel, Never> = .init()
@@ -30,15 +30,15 @@ final class UserItemViewModel: ObservableObject {
     }
     
     init(model: UserResponseModel,
-         viewHistoryLocalDataSource: ViewHistoryLocalDataSource) {
+         viewHistoryRepository: ViewHistoryRepository) {
         self.model = model
-        self.viewHistoryLocalDataSource = viewHistoryLocalDataSource
-        self.isViewed = viewHistoryLocalDataSource.containsUser(by: model.id)
+        self.viewHistoryRepository = viewHistoryRepository
+        self.isViewed = viewHistoryRepository.containsUser(by: model.id)
         
-        viewHistoryLocalDataSource.didChangeSubject
+        viewHistoryRepository.didChangeSubject
             .sink { [weak self] in
                 guard let self else { return }
-                self.isViewed = viewHistoryLocalDataSource.containsUser(by: model.id)
+                self.isViewed = viewHistoryRepository.containsUser(by: model.id)
             }
             .store(in: &cancellables)
     }
@@ -47,8 +47,8 @@ final class UserItemViewModel: ObservableObject {
 extension UserItemViewModel {
     func onTap() {
         onTapSubject.send(model)
-        viewHistoryLocalDataSource.append(model)
-        isViewed = viewHistoryLocalDataSource.containsUser(by: id)
+        viewHistoryRepository.append(model)
+        isViewed = viewHistoryRepository.containsUser(by: id)
     }
 }
 

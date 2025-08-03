@@ -11,7 +11,7 @@ import Combine
 final class ProfileViewModel: ObservableObject {
     typealias Dependencies =
         HasProfileRepository &
-        HasViewHistoryLocalDataSource &
+        HasViewHistoryRepository &
         HasAppConfigUseCase
     
     enum State {
@@ -23,7 +23,7 @@ final class ProfileViewModel: ObservableObject {
     let dependencies: Dependencies
     
     private let repository: ProfileRepository
-    private let viewHistoryLocalDataSource: ViewHistoryLocalDataSource
+    private let viewHistoryRepository: ViewHistoryRepository
     private let appConfigUseCase: AppConfigUseCase
     
     private var model: UserResponseModel?
@@ -44,7 +44,7 @@ final class ProfileViewModel: ObservableObject {
     init(dependencies: Dependencies) {
         self.dependencies = dependencies
         self.repository = dependencies.profileRepository
-        self.viewHistoryLocalDataSource = dependencies.viewHistoryLocalDataSource
+        self.viewHistoryRepository = dependencies.viewHistoryRepository
         self.appConfigUseCase = dependencies.appConfigUseCase
     }
 }
@@ -72,6 +72,6 @@ extension ProfileViewModel {
     
     func logout() {
         appConfigUseCase.changeAppState(to: .unauthorized)
-        viewHistoryLocalDataSource.clearAll()
+        viewHistoryRepository.clearAll()
     }
 }

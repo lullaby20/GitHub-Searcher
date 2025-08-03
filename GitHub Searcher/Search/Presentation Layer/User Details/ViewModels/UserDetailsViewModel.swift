@@ -11,7 +11,7 @@ import Combine
 final class UserDetailsViewModel: ObservableObject {
     typealias Dependencies =
         HasUserDetailsRepository &
-        HasViewHistoryLocalDataSource
+        HasViewHistoryRepository
     
     enum RepositoriesState {
         case loading
@@ -66,7 +66,7 @@ extension UserDetailsViewModel {
                     return
                 }
                 self.repositoriesViewModels = repositories.map {
-                    let viewModel = RepositoryItemViewModel(model: $0, viewHistoryLocalDataSource: self.dependencies.viewHistoryLocalDataSource)
+                    let viewModel = RepositoryItemViewModel(model: $0, viewHistoryRepository: self.dependencies.viewHistoryRepository)
                     
                     viewModel.onTapSubject
                         .sink { [weak self] url in

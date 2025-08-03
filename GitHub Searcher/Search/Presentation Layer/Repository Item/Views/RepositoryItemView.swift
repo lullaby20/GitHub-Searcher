@@ -115,8 +115,8 @@ fileprivate extension RepositoryItemView {
                                             forksCount: 2,
                                             starsCount: 3,
                                             htmlUrlPath: "")
-    let mockViewHistoryLocalDataSource = ViewHistoryLocalDefaultDataSource()
-    let mockViewModel = RepositoryItemViewModel(model: mockModel, viewHistoryLocalDataSource: mockViewHistoryLocalDataSource)
+    let mockViewHistoryRepostitory = ViewHistoryDefaultRepository(localDataSource: ViewHistoryLocalDefaultDataSource())
+    let mockViewModel = RepositoryItemViewModel(model: mockModel, viewHistoryRepository: mockViewHistoryRepostitory)
     
     RepositoryItemView(viewModel: mockViewModel)
         .padding(.horizontal, 16)

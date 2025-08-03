@@ -87,8 +87,8 @@ fileprivate extension UserItemView {
 
 #Preview {
     let mockModel = UserResponseModel(id: 0, login: "Mock User", avatarUrlPath: "")
-    let mockViewHistoryLocalDataSource = ViewHistoryLocalDefaultDataSource()
-    let mockViewModel = UserItemViewModel(model: mockModel, viewHistoryLocalDataSource: mockViewHistoryLocalDataSource)
+    let mockViewHistoryRepository = ViewHistoryDefaultRepository(localDataSource: ViewHistoryLocalDefaultDataSource())
+    let mockViewModel = UserItemViewModel(model: mockModel, viewHistoryRepository: mockViewHistoryRepository)
     
     UserItemView(viewModel: mockViewModel)
 }

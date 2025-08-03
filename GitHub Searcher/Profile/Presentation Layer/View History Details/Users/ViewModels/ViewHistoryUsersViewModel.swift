@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 final class ViewHistoryUsersViewModel: ObservableObject {
-    typealias Dependencies = HasViewHistoryLocalDataSource
+    typealias Dependencies = HasViewHistoryRepository
     
     private var cancellables: Set<AnyCancellable> = .init()
     
@@ -20,12 +20,12 @@ final class ViewHistoryUsersViewModel: ObservableObject {
     }
     
     init(dependencies: Dependencies) {
-        self.usersViewModel = dependencies.viewHistoryLocalDataSource.getUsers().map { UserItemViewModel(model: $0, viewHistoryLocalDataSource: dependencies.viewHistoryLocalDataSource) }
+        self.usersViewModel = dependencies.viewHistoryRepository.getUsers().map { UserItemViewModel(model: $0, viewHistoryRepository: dependencies.viewHistoryRepository) }
         
-        dependencies.viewHistoryLocalDataSource.didChangeSubject
+        dependencies.viewHistoryRepository.didChangeSubject
             .sink { [weak self] in
                 guard let self else { return }
-                self.usersViewModel = dependencies.viewHistoryLocalDataSource.getUsers().map { UserItemViewModel(model: $0, viewHistoryLocalDataSource: dependencies.viewHistoryLocalDataSource) }
+                self.usersViewModel = dependencies.viewHistoryRepository.getUsers().map { UserItemViewModel(model: $0, viewHistoryRepository: dependencies.viewHistoryRepository) }
             }
             .store(in: &cancellables)
     }

@@ -12,7 +12,7 @@ final class SearchViewModel: ObservableObject {
     typealias Dependencies =
         HasSearchRepository &
         HasUserDetailsRepository &
-        HasViewHistoryLocalDataSource
+        HasViewHistoryRepository
     
     enum State {
         case empty
@@ -87,7 +87,7 @@ extension SearchViewModel {
                     return
                 }
                 self.repositoriesViewModels = repositories.map {
-                    let viewModel = RepositoryItemViewModel(model: $0, viewHistoryLocalDataSource: self.dependencies.viewHistoryLocalDataSource)
+                    let viewModel = RepositoryItemViewModel(model: $0, viewHistoryRepository: self.dependencies.viewHistoryRepository)
                     
                     viewModel.onTapSubject
                         .sink { [weak self] url in
@@ -122,7 +122,7 @@ extension SearchViewModel {
             } receiveValue: { [weak self] repositories in
                 guard let self else { return }
                 self.repositoriesViewModels += repositories.map {
-                    let viewModel = RepositoryItemViewModel(model: $0, viewHistoryLocalDataSource: self.dependencies.viewHistoryLocalDataSource)
+                    let viewModel = RepositoryItemViewModel(model: $0, viewHistoryRepository: self.dependencies.viewHistoryRepository)
                     
                     viewModel.onTapSubject
                         .sink { [weak self] url in
@@ -159,7 +159,7 @@ extension SearchViewModel {
                     return
                 }
                 self.usersViewModels = users.map {
-                    let viewModel = UserItemViewModel(model: $0, viewHistoryLocalDataSource: self.dependencies.viewHistoryLocalDataSource)
+                    let viewModel = UserItemViewModel(model: $0, viewHistoryRepository: self.dependencies.viewHistoryRepository)
                     
                     viewModel.onTapSubject
                         .sink { [weak self] model in
@@ -194,7 +194,7 @@ extension SearchViewModel {
             } receiveValue: { [weak self] users in
                 guard let self else { return }
                 self.usersViewModels += users.map {
-                    let viewModel = UserItemViewModel(model: $0, viewHistoryLocalDataSource: self.dependencies.viewHistoryLocalDataSource)
+                    let viewModel = UserItemViewModel(model: $0, viewHistoryRepository: self.dependencies.viewHistoryRepository)
                     
                     viewModel.onTapSubject
                         .sink { [weak self] model in

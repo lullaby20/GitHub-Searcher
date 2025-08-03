@@ -27,8 +27,8 @@ protocol HasProfileRepository {
     var profileRepository: ProfileRepository { get }
 }
 
-protocol HasViewHistoryLocalDataSource {
-    var viewHistoryLocalDataSource: ViewHistoryLocalDataSource { get }
+protocol HasViewHistoryRepository {
+    var viewHistoryRepository: ViewHistoryRepository { get }
 }
 
 final class Dependencies:
@@ -37,7 +37,7 @@ final class Dependencies:
     HasSearchRepository,
     HasUserDetailsRepository,
     HasProfileRepository,
-    HasViewHistoryLocalDataSource {
+    HasViewHistoryRepository {
     private let network: Networking
     private let keychainSecureStorage: KeychainSecureStorage
     
@@ -62,8 +62,8 @@ final class Dependencies:
          ProfileDefaultRepository(remoteDataSource: ProfileRemoteDefaultDataSource(network: network))
     }()
     
-    lazy var viewHistoryLocalDataSource: any ViewHistoryLocalDataSource = {
-        ViewHistoryLocalDefaultDataSource()
+    lazy var viewHistoryRepository: any ViewHistoryRepository = {
+        ViewHistoryDefaultRepository(localDataSource: ViewHistoryLocalDefaultDataSource())
     }()
     
     init() {

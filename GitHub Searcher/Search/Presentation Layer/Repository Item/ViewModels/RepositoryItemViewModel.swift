@@ -10,7 +10,7 @@ import Combine
 
 final class RepositoryItemViewModel: ObservableObject {
     private let model: RepositoryResponseModel
-    private let viewHistoryLocalDataSource: ViewHistoryLocalDataSource
+    private let viewHistoryRepository: ViewHistoryRepository
     private var cancellables: Set<AnyCancellable> = .init()
     
     let onTapSubject: PassthroughSubject<URL, Never> = .init()
@@ -46,15 +46,15 @@ final class RepositoryItemViewModel: ObservableObject {
     }
     
     init(model: RepositoryResponseModel,
-         viewHistoryLocalDataSource: ViewHistoryLocalDataSource) {
+         viewHistoryRepository: ViewHistoryRepository) {
         self.model = model
-        self.viewHistoryLocalDataSource = viewHistoryLocalDataSource
-        self.isViewed = viewHistoryLocalDataSource.containsRepository(by: model.id)
+        self.viewHistoryRepository = viewHistoryRepository
+        self.isViewed = viewHistoryRepository.containsRepository(by: model.id)
         
-        viewHistoryLocalDataSource.didChangeSubject
+        viewHistoryRepository.didChangeSubject
             .sink { [weak self] in
                 guard let self else { return }
-                self.isViewed = viewHistoryLocalDataSource.containsRepository(by: model.id)
+                self.isViewed = viewHistoryRepository.containsRepository(by: model.id)
             }
             .store(in: &cancellables)
     }
@@ -64,8 +64,8 @@ extension RepositoryItemViewModel {
     func onTap() {
         guard let url = URL(string: htmlUrlPath) else { return }
         onTapSubject.send(url)
-        viewHistoryLocalDataSource.append(model)
-        isViewed = viewHistoryLocalDataSource.containsRepository(by: id)
+        viewHistoryRepository.append(model)
+        isViewed = viewHistoryRepository.containsRepository(by: id)
     }
 }
 
