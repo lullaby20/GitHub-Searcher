@@ -6,8 +6,11 @@
 //
 
 import Foundation
+import Combine
 
 protocol ViewHistoryLocalDataSource {
+    var didChangeSubject: PassthroughSubject<Void, Never> { get }
+    
     func getRepositories() -> [RepositoryResponseModel]
     func getUsers() -> [UserResponseModel]
     

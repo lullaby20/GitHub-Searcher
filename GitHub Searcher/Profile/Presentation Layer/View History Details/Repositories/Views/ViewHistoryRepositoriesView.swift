@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ViewHistoryRepositoriesView: View {
-    let viewModel: ViewHistoryRepositoriesViewModel
+    @ObservedObject var viewModel: ViewHistoryRepositoriesViewModel
     
     var body: some View {
         contentBodyView
@@ -30,12 +30,24 @@ fileprivate extension ViewHistoryRepositoriesView {
     var repositoriesListView: some View {
         ScrollView(showsIndicators: false) {
             LazyVStack(spacing: 5) {
-                ForEach(viewModel.repositoriesViewModels) { repositoryViewModel in
+                countView
+                    .padding(.bottom, 5)
+                
+                ForEach(viewModel.repositoriesViewModels.reversed()) { repositoryViewModel in
                     RepositoryItemView(viewModel: repositoryViewModel)
                 }
             }
             .padding(.bottom, 16)
         }
+    }
+    
+    var countView: some View {
+        Text("Count: \(viewModel.count)")
+            .font(.callout)
+            .fontWeight(.medium)
+            .fontDesign(.rounded)
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     var emptyView: some View {

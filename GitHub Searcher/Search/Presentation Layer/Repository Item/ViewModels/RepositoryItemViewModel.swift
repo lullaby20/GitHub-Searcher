@@ -11,6 +11,7 @@ import Combine
 final class RepositoryItemViewModel: ObservableObject {
     private let model: RepositoryResponseModel
     private let viewHistoryLocalDataSource: ViewHistoryLocalDataSource
+    private var cancellables: Set<AnyCancellable> = .init()
     
     let onTapSubject: PassthroughSubject<URL, Never> = .init()
     
@@ -49,6 +50,13 @@ final class RepositoryItemViewModel: ObservableObject {
         self.model = model
         self.viewHistoryLocalDataSource = viewHistoryLocalDataSource
         self.isViewed = viewHistoryLocalDataSource.containsRepository(by: model.id)
+        
+        viewHistoryLocalDataSource.didChangeSubject
+            .sink { [weak self] in
+                guard let self else { return }
+                self.isViewed = viewHistoryLocalDataSource.containsRepository(by: model.id)
+            }
+            .store(in: &cancellables)
     }
 }
 

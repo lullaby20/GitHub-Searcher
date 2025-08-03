@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ViewHistoryUsersView: View {
-    let viewModel: ViewHistoryUsersViewModel
+    @ObservedObject var viewModel: ViewHistoryUsersViewModel
     
     var body: some View {
         contentBodyView
@@ -30,12 +30,24 @@ fileprivate extension ViewHistoryUsersView {
     var usersListView: some View {
         ScrollView(showsIndicators: false) {
             LazyVStack(spacing: 5) {
-                ForEach(viewModel.usersViewModel) { userViewModel in
+                countView
+                    .padding(.bottom, 5)
+                
+                ForEach(viewModel.usersViewModel.reversed()) { userViewModel in
                     UserItemView(viewModel: userViewModel)
                 }
             }
             .padding(.bottom, 16)
         }
+    }
+    
+    var countView: some View {
+        Text("Count: \(viewModel.count)")
+            .font(.callout)
+            .fontWeight(.medium)
+            .fontDesign(.rounded)
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     var emptyView: some View {

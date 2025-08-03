@@ -1,6 +1,15 @@
 {
-  "originHash" : "2e643107205478e85dda039870fa99ee40745c800deb0f49e6df3ad8dcb4dd7c",
+  "originHash" : "8d3fd77566f2f2351ea436d080ed8552873c1df79d4b5f026a5950009521e99f",
   "pins" : [
+    {
+      "identity" : "swift-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-collections.git",
+      "state" : {
+        "revision" : "8c0c0a8b49e080e54e5e328cc552821ff07cd341",
+        "version" : "1.2.1"
+      }
+    },
     {
       "identity" : "swiftkeychainwrapper",
       "kind" : "remoteSourceControl",

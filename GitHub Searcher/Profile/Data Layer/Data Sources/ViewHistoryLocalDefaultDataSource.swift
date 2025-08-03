@@ -6,15 +6,17 @@
 //
 
 import Foundation
+import OrderedCollections
+import Combine
 
 final class ViewHistoryLocalDefaultDataSource: ViewHistoryLocalDataSource {
     private let repositoriesKey = "repositoriesKey"
     private let usersKey = "usersKey"
     
-    private var repositories: Set<RepositoryResponseModel> {
+    private var repositories: OrderedSet<RepositoryResponseModel> {
         get {
             guard let data = UserDefaults.standard.data(forKey: repositoriesKey),
-                  let decodedData = try? JSONDecoder().decode(Set<RepositoryResponseModel>.self, from: data) else {
+                  let decodedData = try? JSONDecoder().decode(OrderedSet<RepositoryResponseModel>.self, from: data) else {
                 return []
             }
             
@@ -28,10 +30,10 @@ final class ViewHistoryLocalDefaultDataSource: ViewHistoryLocalDataSource {
         }
     }
     
-    private var users: Set<UserResponseModel> {
+    private var users: OrderedSet<UserResponseModel> {
         get {
             guard let data = UserDefaults.standard.data(forKey: usersKey),
-                  let decodedData = try? JSONDecoder().decode(Set<UserResponseModel>.self, from: data) else {
+                  let decodedData = try? JSONDecoder().decode(OrderedSet<UserResponseModel>.self, from: data) else {
                 return []
             }
             
@@ -45,6 +47,8 @@ final class ViewHistoryLocalDefaultDataSource: ViewHistoryLocalDataSource {
         }
     }
     
+    let didChangeSubject: PassthroughSubject<Void, Never> = .init()
+    
     func getRepositories() -> [RepositoryResponseModel] {
         Array(repositories)
     }
@@ -54,19 +58,21 @@ final class ViewHistoryLocalDefaultDataSource: ViewHistoryLocalDataSource {
     }
     
     func append(_ repository: RepositoryResponseModel) {
-        if repositories.count >= 20 {
+        if repositories.count == 20 {
             repositories.removeFirst()
         }
         
-        repositories.insert(repository)
+        repositories.append(repository)
+        didChangeSubject.send()
     }
     
     func append(_ user: UserResponseModel) {
-        if users.count >= 20 {
+        if users.count == 20 {
             users.removeFirst()
         }
         
-        users.insert(user)
+        users.append(user)
+        didChangeSubject.send()
     }
     
     func containsRepository(by id: Int) -> Bool {
@@ -80,5 +86,6 @@ final class ViewHistoryLocalDefaultDataSource: ViewHistoryLocalDataSource {
     func clearAll() {
         repositories.removeAll()
         users.removeAll()
+        didChangeSubject.send()
     }
 }

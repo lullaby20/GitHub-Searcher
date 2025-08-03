@@ -6,13 +6,27 @@
 //
 
 import Foundation
+import Combine
 
-final class ViewHistoryUsersViewModel {
+final class ViewHistoryUsersViewModel: ObservableObject {
     typealias Dependencies = HasViewHistoryLocalDataSource
     
-    let usersViewModel: [UserItemViewModel]
+    private var cancellables: Set<AnyCancellable> = .init()
+    
+    @Published var usersViewModel: [UserItemViewModel]
+    
+    var count: Int {
+        usersViewModel.count
+    }
     
     init(dependencies: Dependencies) {
         self.usersViewModel = dependencies.viewHistoryLocalDataSource.getUsers().map { UserItemViewModel(model: $0, viewHistoryLocalDataSource: dependencies.viewHistoryLocalDataSource) }
+        
+        dependencies.viewHistoryLocalDataSource.didChangeSubject
+            .sink { [weak self] in
+                guard let self else { return }
+                self.usersViewModel = dependencies.viewHistoryLocalDataSource.getUsers().map { UserItemViewModel(model: $0, viewHistoryLocalDataSource: dependencies.viewHistoryLocalDataSource) }
+            }
+            .store(in: &cancellables)
     }
 }
