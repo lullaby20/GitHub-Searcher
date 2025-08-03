@@ -10,7 +10,7 @@ import Combine
 
 final class ProfileViewModel: ObservableObject {
     typealias Dependencies =
-        HasProfileRemoteDataSource &
+        HasProfileRepository &
         HasViewHistoryLocalDataSource &
         HasAppConfigUseCase
     
@@ -22,7 +22,7 @@ final class ProfileViewModel: ObservableObject {
     
     let dependencies: Dependencies
     
-    private let remoteDataSource: ProfileRemoteDataSource
+    private let repository: ProfileRepository
     private let viewHistoryLocalDataSource: ViewHistoryLocalDataSource
     private let appConfigUseCase: AppConfigUseCase
     
@@ -43,7 +43,7 @@ final class ProfileViewModel: ObservableObject {
     
     init(dependencies: Dependencies) {
         self.dependencies = dependencies
-        self.remoteDataSource = dependencies.profileRemoteDataSource
+        self.repository = dependencies.profileRepository
         self.viewHistoryLocalDataSource = dependencies.viewHistoryLocalDataSource
         self.appConfigUseCase = dependencies.appConfigUseCase
     }
@@ -53,7 +53,7 @@ extension ProfileViewModel {
     func getProfile() {
         state = .loading
         
-        remoteDataSource.getProfile()
+        repository.getProfile()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] status in
                 guard let self else { return }

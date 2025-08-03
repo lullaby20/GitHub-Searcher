@@ -23,8 +23,8 @@ protocol HasUserDetailsRemoteDataSource {
     var userDetailsRemoteDataSource: UserDetailsRemoteDataSource { get }
 }
 
-protocol HasProfileRemoteDataSource {
-    var profileRemoteDataSource: ProfileRemoteDataSource { get }
+protocol HasProfileRepository {
+    var profileRepository: ProfileRepository { get }
 }
 
 protocol HasViewHistoryLocalDataSource {
@@ -36,7 +36,7 @@ final class Dependencies:
     HasAuthorizationRepository,
     HasSearchRepository,
     HasUserDetailsRemoteDataSource,
-    HasProfileRemoteDataSource,
+    HasProfileRepository,
     HasViewHistoryLocalDataSource {
     private let network: Networking
     private let keychainSecureStorage: KeychainSecureStorage
@@ -58,8 +58,8 @@ final class Dependencies:
         UserDetailsRemoteDefaultDataSource(network: network)
     }()
     
-    lazy var profileRemoteDataSource: any ProfileRemoteDataSource = {
-         ProfileRemoteDefaultDataSource(network: network)
+    lazy var profileRepository: any ProfileRepository = {
+         ProfileDefaultRepository(remoteDataSource: ProfileRemoteDefaultDataSource(network: network))
     }()
     
     lazy var viewHistoryLocalDataSource: any ViewHistoryLocalDataSource = {

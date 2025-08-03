@@ -30,7 +30,7 @@ struct AuthorizationDefaultRepositoryTests {
         #expect(url.contains("redirect_uri=redirectURI"))
     }
     
-    @Test func testGetTokenCallsRemoteWithCorrectValue() {
+    @Test func testGetTokenCallsWithCorrectValue() {
         keychainSecureStorage.set(value: "client", for: .clientID)
         keychainSecureStorage.set(value: "secret", for: .clientSecret)
         keychainSecureStorage.set(value: "redirectURI", for: .redirectURI)
