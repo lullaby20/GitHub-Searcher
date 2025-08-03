@@ -49,7 +49,8 @@ fileprivate extension SearchView {
             .padding(.horizontal, 16)
             .searchable(text: $viewModel.searchText, prompt: "Start typing...")
             .onSubmit(of: .search) {
-                viewModel.configureState()
+                // MARK: Have a different thoughts about this
+//                viewModel.configureState()
             }
             .safeAreaInset(edge: .bottom) {
                 if viewModel.isLoadingPagination {

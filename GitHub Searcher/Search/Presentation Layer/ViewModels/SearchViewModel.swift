@@ -263,7 +263,7 @@ fileprivate extension SearchViewModel {
     func bindSearchText() {
         $searchText
             .dropFirst()
-            .debounce(for: .seconds(1), scheduler: RunLoop.main)
+            .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
             .removeDuplicates()
             .sink { [weak self] newValue in
                 guard let self else { return }
