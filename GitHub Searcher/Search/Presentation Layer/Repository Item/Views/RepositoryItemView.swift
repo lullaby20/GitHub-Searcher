@@ -8,21 +8,31 @@
 import SwiftUI
 
 struct RepositoryItemView: View {
-    let model: RepositoryResponseModel
+    @ObservedObject var viewModel: RepositoryItemViewModel
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         contentBodyView
+            .onTapGesture {
+                viewModel.onTap()
+            }
     }
 }
 
 fileprivate extension RepositoryItemView {
     var contentBodyView: some View {
-        VStack(spacing: 4) {
-            nameView
-                .frame(maxWidth: .infinity, alignment: .leading)
+        HStack(spacing: 8) {
+            VStack(spacing: 4) {
+                nameView
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                detailsView
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
             
-            detailsView
-                .frame(maxWidth: .infinity, alignment: .leading)
+            viewedView
+                .padding(.trailing, 16)
+                .opacity(viewModel.isViewed ? 1 : 0)
         }
         .padding(10)
         .background(
@@ -44,12 +54,12 @@ fileprivate extension RepositoryItemView {
     }
     
     var nameView: some View {
-        Text(model.name)
+        Text(viewModel.name)
             .font(.system(size: 18, design: .rounded))
     }
     
     var updatedAtDateView: some View {
-        Text("Updated at: " + model.updatedAt.toShortDateString())
+        Text("Updated at: " + viewModel.updatedDate)
             .font(.system(size: 12, design: .rounded))
             .foregroundStyle(.secondary)
     }
@@ -59,7 +69,7 @@ fileprivate extension RepositoryItemView {
             Text(Image(systemName: "star.fill"))
                 .foregroundStyle(.yellow)
             +
-            Text(" : \(model.starsCount)")
+            Text(" : \(viewModel.starsCount)")
         )
         .font(.system(size: 12, design: .rounded))
         .foregroundStyle(.secondary)
@@ -70,16 +80,29 @@ fileprivate extension RepositoryItemView {
             Text(Image(systemName: "tuningfork"))
                 .foregroundStyle(.secondary)
             +
-            Text(" : \(model.forksCount)")
+            Text(" : \(viewModel.forksCount)")
         )
         .font(.system(size: 12, design: .rounded))
         .foregroundStyle(.secondary)
     }
     
     var ownerNameView: some View {
-        Text("By \(model.owner.login)")
+        Text("By \(viewModel.ownerName)")
             .font(.system(size: 12, design: .rounded))
             .foregroundStyle(.secondary)
+    }
+    
+    var viewedView: some View {
+        VStack(spacing: 6) {
+            Image(systemName: "checkmark.square.fill")
+                .resizable()
+                .foregroundStyle(.green)
+                .frame(width: 20, height: 20)
+            
+            Text("Viewed")
+                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .foregroundStyle(colorScheme == .dark ? .white : .black)
+        }
     }
 }
 
@@ -92,7 +115,9 @@ fileprivate extension RepositoryItemView {
                                             forksCount: 2,
                                             starsCount: 3,
                                             htmlUrlPath: "")
+    let mockViewHistoryLocalDataSource = ViewHistoryLocalDefaultDataSource()
+    let mockViewModel = RepositoryItemViewModel(model: mockModel, viewHistoryLocalDataSource: mockViewHistoryLocalDataSource)
     
-    RepositoryItemView(model: mockModel)
+    RepositoryItemView(viewModel: mockViewModel)
         .padding(.horizontal, 16)
 }

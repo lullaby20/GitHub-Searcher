@@ -9,18 +9,22 @@ import Foundation
 import Combine
 
 final class UserDetailsViewModel: ObservableObject {
-    typealias Dependencies = HasUserDetailsRemoteDataSource
+    typealias Dependencies =
+        HasUserDetailsRemoteDataSource &
+        HasViewHistoryLocalDataSource
     
     enum RepositoriesState {
         case loading
         case content
         case empty
+        case failure
     }
     
     private let model: UserResponseModel
+    private let dependencies: Dependencies
     private let remoteDataSource: UserDetailsRemoteDataSource
     
-    private(set) var repositories: [RepositoryResponseModel] = []
+    private(set) var repositoriesViewModels: [RepositoryItemViewModel] = []
     private var cancellables: Set<AnyCancellable> = .init()
     
     @Published var repositoriesState: RepositoriesState = .loading
@@ -37,6 +41,7 @@ final class UserDetailsViewModel: ObservableObject {
     init(model: UserResponseModel,
          dependencies: Dependencies) {
         self.model = model
+        self.dependencies = dependencies
         self.remoteDataSource = dependencies.userDetailsRemoteDataSource
     }
 }
@@ -47,27 +52,33 @@ extension UserDetailsViewModel {
         
         remoteDataSource.getRepositories(by: name)
             .receive(on: DispatchQueue.main)
-            .sink { status in
+            .sink { [weak self] status in
+                guard let self else { return }
                 switch status {
                 case .finished:
-                    return
+                    self.repositoriesState = .content
                 case .failure(let error):
-                    print("error - \(error.localizedDescription)")
+                    self.repositoriesState = .failure
                 }
             } receiveValue: { [weak self] repositories in
                 guard let self, !repositories.isEmpty else {
                     self?.repositoriesState = .empty
                     return
                 }
-                self.repositories = repositories
-                self.repositoriesState = .content
+                self.repositoriesViewModels = repositories.map {
+                    let viewModel = RepositoryItemViewModel(model: $0, viewHistoryLocalDataSource: self.dependencies.viewHistoryLocalDataSource)
+                    
+                    viewModel.onTapSubject
+                        .sink { [weak self] url in
+                            guard let self else { return }
+                            self.sheet = .safari(url: url)
+                        }
+                        .store(in: &self.cancellables)
+                    
+                    return viewModel
+                }
             }
             .store(in: &cancellables)
-    }
-    
-    func onTap(_ repository: RepositoryResponseModel) {
-        guard let url = URL(string: repository.htmlUrlPath) else { return }
-        sheet = .safari(url: url)
     }
 }
 

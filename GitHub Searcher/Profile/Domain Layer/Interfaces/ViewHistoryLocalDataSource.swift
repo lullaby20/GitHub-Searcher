@@ -14,5 +14,8 @@ protocol ViewHistoryLocalDataSource {
     func append(_ repository: RepositoryResponseModel)
     func append(_ user: UserResponseModel)
     
+    func containsRepository(by id: Int) -> Bool
+    func containsUser(by id: Int) -> Bool
+    
     func clearAll()
 }

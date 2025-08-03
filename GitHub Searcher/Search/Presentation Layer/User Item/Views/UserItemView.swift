@@ -8,10 +8,14 @@
 import SwiftUI
 
 struct UserItemView: View {
-    let model: UserResponseModel
+    @ObservedObject var viewModel: UserItemViewModel
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         contentBodyView
+            .onTapGesture {
+                viewModel.onTap()
+            }
     }
 }
 
@@ -21,6 +25,12 @@ fileprivate extension UserItemView {
             avatarView
             
             nameView
+            
+            Spacer()
+            
+            viewedView
+                .padding(.trailing, 16)
+                .opacity(viewModel.isViewed ? 1 : 0)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(10)
@@ -32,7 +42,7 @@ fileprivate extension UserItemView {
     
     @ViewBuilder
     var avatarView: some View {
-        AsyncImage(url: URL(string: model.avatarUrlPath)) { phase in
+        AsyncImage(url: viewModel.avatarUrl) { phase in
             switch phase {
             case .success(let image):
                 image
@@ -57,13 +67,28 @@ fileprivate extension UserItemView {
     }
     
     var nameView: some View {
-        Text(model.login)
+        Text(viewModel.login)
             .font(.system(size: 18, design: .rounded))
+    }
+    
+    var viewedView: some View {
+        VStack(spacing: 6) {
+            Image(systemName: "checkmark.square.fill")
+                .resizable()
+                .foregroundStyle(.green)
+                .frame(width: 20, height: 20)
+            
+            Text("Viewed")
+                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .foregroundStyle(colorScheme == .dark ? .white : .black)
+        }
     }
 }
 
 #Preview {
     let mockModel = UserResponseModel(id: 0, login: "Mock User", avatarUrlPath: "")
+    let mockViewHistoryLocalDataSource = ViewHistoryLocalDefaultDataSource()
+    let mockViewModel = UserItemViewModel(model: mockModel, viewHistoryLocalDataSource: mockViewHistoryLocalDataSource)
     
-    UserItemView(model: mockModel)
+    UserItemView(viewModel: mockViewModel)
 }

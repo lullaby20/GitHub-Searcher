@@ -13,6 +13,9 @@ struct SearchView: View {
     
     var body: some View {
         contentBodyView
+            .onReceive(viewModel.userViewModelTapped) { model in
+                navigationPath.append(model)
+            }
             .alert(item: $viewModel.alert) { alert in
                 switch alert {
                 case .error:
@@ -113,29 +116,18 @@ fileprivate extension SearchView {
             case .repositories:
                 repositoriesSortTypePickerView
                 
-                ForEach(viewModel.repositories) { repository in
-                    Button {
-                        guard let url = URL(string: repository.htmlUrlPath) else { return }
-                        viewModel.sheet = .safari(url: url)
-                    } label: {
-                        RepositoryItemView(model: repository)
-                    }
-                    .buttonStyle(.plain)
-                    .onAppear {
-                        viewModel.getMoreRepositories(after: repository)
-                    }
+                ForEach(viewModel.repositoriesViewModels) { repositoryViewModel in
+                    RepositoryItemView(viewModel: repositoryViewModel)
+                        .onAppear {
+                            viewModel.getMoreRepositories(after: repositoryViewModel)
+                        }
                 }
             case .users:
-                ForEach(viewModel.users) { user in
-                    Button {
-                        navigationPath.append(user)
-                    } label: {
-                        UserItemView(model: user)
-                    }
-                    .buttonStyle(.plain)
-                    .onAppear {
-                        viewModel.getMoreUsers(after: user)
-                    }
+                ForEach(viewModel.usersViewModels) { userViewModel in
+                    UserItemView(viewModel: userViewModel)
+                        .onAppear {
+                            viewModel.getMoreUsers(after: userViewModel)
+                        }
                 }
             }
         }
@@ -159,8 +151,9 @@ fileprivate extension SearchView {
     }
     
     var emptyView: some View {
-        ContentUnavailableView("Start typing what you're searching for...",
-                               systemImage: "magnifyingglass")
+        ContentUnavailableView("Search",
+                               systemImage: "magnifyingglass",
+                               description: Text("Start typing what you're searching for..."))
     }
     
     var notFoundView: some View {

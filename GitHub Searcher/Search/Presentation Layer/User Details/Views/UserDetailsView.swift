@@ -93,18 +93,15 @@ fileprivate extension UserDetailsView {
                 RepositoryItemLoadingView()
             }
         case .content:
-            ForEach(viewModel.repositories) { repository in
-                Button {
-                    viewModel.onTap(repository)
-                } label: {
-                    RepositoryItemView(model: repository)
-                }
-                .buttonStyle(.plain)
+            ForEach(viewModel.repositoriesViewModels) { repositoryViewModel in
+                RepositoryItemView(viewModel: repositoryViewModel)
             }
         case .empty:
             ContentUnavailableView("Nothing here yet!",
                                    systemImage: "magnifyingglass",
                                    description: Text("Maybe this user is working on something awesome in private."))
+        case .failure:
+            FailureView()
         }
     }
 }

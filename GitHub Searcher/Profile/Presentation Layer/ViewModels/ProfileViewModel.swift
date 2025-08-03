@@ -20,6 +20,8 @@ final class ProfileViewModel: ObservableObject {
         case failure
     }
     
+    let dependencies: Dependencies
+    
     private let remoteDataSource: ProfileRemoteDataSource
     private let viewHistoryLocalDataSource: ViewHistoryLocalDataSource
     private let appConfigUseCase: AppConfigUseCase
@@ -40,6 +42,7 @@ final class ProfileViewModel: ObservableObject {
     }
     
     init(dependencies: Dependencies) {
+        self.dependencies = dependencies
         self.remoteDataSource = dependencies.profileRemoteDataSource
         self.viewHistoryLocalDataSource = dependencies.viewHistoryLocalDataSource
         self.appConfigUseCase = dependencies.appConfigUseCase

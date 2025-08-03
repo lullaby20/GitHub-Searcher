@@ -9,14 +9,15 @@ import SwiftUI
 
 struct ProfileView: View {
     @ObservedObject var viewModel: ProfileViewModel
+    @State private var navigationPath = NavigationPath()
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             contentBodyView
                 .onAppear {
                     viewModel.getProfile()
                 }
-                .confirmationDialog("Are you sure you want to logout?",
+                .confirmationDialog("Are you sure you want to log out?",
                                     isPresented: $viewModel.showLogoutConfirmationDialog,
                                     titleVisibility: .visible) {
                     Button("Log Out", role: .destructive) {
@@ -25,6 +26,14 @@ struct ProfileView: View {
                 }
                 .navigationTitle("Profile")
                 .navigationBarTitleDisplayMode(.inline)
+                .navigationDestination(for: ViewHistoryType.self) { type in
+                    switch type {
+                    case .repositories:
+                        ViewHistoryRepositoriesView(viewModel: ViewHistoryRepositoriesViewModel(dependencies: viewModel.dependencies))
+                    case .users:
+                        ViewHistoryUsersView(viewModel: ViewHistoryUsersViewModel(dependencies: viewModel.dependencies))
+                    }
+                }
         }
     }
 }
@@ -38,7 +47,7 @@ fileprivate extension ProfileView {
         case .content:
             contentView
         case .failure:
-            failureView
+            FailureView()
         }
     }
     
@@ -106,6 +115,10 @@ fileprivate extension ProfileView {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 12)
                     .padding(.horizontal, 16)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        navigationPath.append(ViewHistoryType.repositories)
+                    }
                 
                 Divider()
                 
@@ -115,6 +128,10 @@ fileprivate extension ProfileView {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 12)
                     .padding(.horizontal, 16)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        navigationPath.append(ViewHistoryType.users)
+                    }
             }
             .background(
                 RoundedRectangle(cornerRadius: 10)
@@ -137,12 +154,6 @@ fileprivate extension ProfileView {
                         .fill(.red)
                 )
         }
-    }
-    
-    var failureView: some View {
-        ContentUnavailableView("Oops...",
-                               systemImage: "exclamationmark.circle",
-                               description: Text("Something get wrong."))
     }
 }
 

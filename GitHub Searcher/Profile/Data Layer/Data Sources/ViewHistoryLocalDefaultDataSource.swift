@@ -11,10 +11,10 @@ final class ViewHistoryLocalDefaultDataSource: ViewHistoryLocalDataSource {
     private let repositoriesKey = "repositoriesKey"
     private let usersKey = "usersKey"
     
-    private var repositories: [RepositoryResponseModel] {
+    private var repositories: Set<RepositoryResponseModel> {
         get {
             guard let data = UserDefaults.standard.data(forKey: repositoriesKey),
-                  let decodedData = try? JSONDecoder().decode([RepositoryResponseModel].self, from: data) else {
+                  let decodedData = try? JSONDecoder().decode(Set<RepositoryResponseModel>.self, from: data) else {
                 return []
             }
             
@@ -28,10 +28,10 @@ final class ViewHistoryLocalDefaultDataSource: ViewHistoryLocalDataSource {
         }
     }
     
-    private var users: [UserResponseModel] {
+    private var users: Set<UserResponseModel> {
         get {
             guard let data = UserDefaults.standard.data(forKey: usersKey),
-                  let decodedData = try? JSONDecoder().decode([UserResponseModel].self, from: data) else {
+                  let decodedData = try? JSONDecoder().decode(Set<UserResponseModel>.self, from: data) else {
                 return []
             }
             
@@ -46,11 +46,11 @@ final class ViewHistoryLocalDefaultDataSource: ViewHistoryLocalDataSource {
     }
     
     func getRepositories() -> [RepositoryResponseModel] {
-        repositories
+        Array(repositories)
     }
     
     func getUsers() -> [UserResponseModel] {
-        users
+        Array(users)
     }
     
     func append(_ repository: RepositoryResponseModel) {
@@ -58,7 +58,7 @@ final class ViewHistoryLocalDefaultDataSource: ViewHistoryLocalDataSource {
             repositories.removeFirst()
         }
         
-        repositories.append(repository)
+        repositories.insert(repository)
     }
     
     func append(_ user: UserResponseModel) {
@@ -66,7 +66,15 @@ final class ViewHistoryLocalDefaultDataSource: ViewHistoryLocalDataSource {
             users.removeFirst()
         }
         
-        users.append(user)
+        users.insert(user)
+    }
+    
+    func containsRepository(by id: Int) -> Bool {
+        repositories.contains(where: { $0.id == id })
+    }
+    
+    func containsUser(by id: Int) -> Bool {
+        users.contains(where: { $0.id == id })
     }
     
     func clearAll() {

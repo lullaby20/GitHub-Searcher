@@ -11,7 +11,8 @@ import Combine
 final class SearchViewModel: ObservableObject {
     typealias Dependencies =
         HasSearchRepository &
-        HasUserDetailsRemoteDataSource
+        HasUserDetailsRemoteDataSource &
+        HasViewHistoryLocalDataSource
     
     enum State {
         case empty
@@ -24,13 +25,15 @@ final class SearchViewModel: ObservableObject {
     private let repository: SearchRepository
     private var cancellables: Set<AnyCancellable> = .init()
     
-    private(set) var repositories: [RepositoryResponseModel] = []
-    private(set) var users: [UserResponseModel] = []
+    private(set) var repositoriesViewModels: [RepositoryItemViewModel] = []
+    private(set) var usersViewModels: [UserItemViewModel] = []
     
+    let userViewModelTapped: PassthroughSubject<UserResponseModel, Never> = .init()
+    
+    @Published var state: State = .empty
     @Published var searchText: String = ""
     @Published var searchingContentType: SearchingContentType = .repositories
     @Published var repositoriesSortType: RepositoriesSortType = .stars
-    @Published var state: State = .empty
     @Published var isLoadingPagination: Bool = false
     @Published var alert: Alert?
     @Published var sheet: Sheet?
@@ -65,10 +68,8 @@ extension SearchViewModel {
 
 // MARK: - Repositories
 extension SearchViewModel {
-    func getRepositories(by query: String, shouldShowLoading: Bool = true) {
-        if shouldShowLoading {
-            state = .loading
-        }
+    func getRepositories(by query: String) {
+        state = .loading
         
         repository.getRepositories(by: query, sortType: repositoriesSortType)
             .receive(on: DispatchQueue.main)
@@ -85,14 +86,25 @@ extension SearchViewModel {
                     self?.state = .notFound
                     return
                 }
-                self.repositories = repositories
+                self.repositoriesViewModels = repositories.map {
+                    let viewModel = RepositoryItemViewModel(model: $0, viewHistoryLocalDataSource: self.dependencies.viewHistoryLocalDataSource)
+                    
+                    viewModel.onTapSubject
+                        .sink { [weak self] url in
+                            guard let self else { return }
+                            self.sheet = .safari(url: url)
+                        }
+                        .store(in: &self.cancellables)
+                    
+                    return viewModel
+                }
                 self.state = .results
             }
             .store(in: &cancellables)
     }
     
-    func getMoreRepositories(after model: RepositoryResponseModel) {
-        guard model.id == repositories.last?.id, !isLoadingPagination else { return }
+    func getMoreRepositories(after viewModel: RepositoryItemViewModel) {
+        guard viewModel.id == repositoriesViewModels.last?.id, !isLoadingPagination else { return }
         
         isLoadingPagination = true
         
@@ -109,7 +121,18 @@ extension SearchViewModel {
                 }
             } receiveValue: { [weak self] repositories in
                 guard let self else { return }
-                self.repositories += repositories
+                self.repositoriesViewModels += repositories.map {
+                    let viewModel = RepositoryItemViewModel(model: $0, viewHistoryLocalDataSource: self.dependencies.viewHistoryLocalDataSource)
+                    
+                    viewModel.onTapSubject
+                        .sink { [weak self] url in
+                            guard let self else { return }
+                            self.sheet = .safari(url: url)
+                        }
+                        .store(in: &self.cancellables)
+                    
+                    return viewModel
+                }
             }
             .store(in: &cancellables)
     }
@@ -117,10 +140,8 @@ extension SearchViewModel {
 
 // MARK: - Users
 extension SearchViewModel {
-    func getUsers(by query: String, shouldShowLoading: Bool = true) {
-        if shouldShowLoading {
-            state = .loading
-        }
+    func getUsers(by query: String) {
+        state = .loading
         
         repository.getUsers(by: query)
             .receive(on: DispatchQueue.main)
@@ -137,14 +158,25 @@ extension SearchViewModel {
                     self?.state = .notFound
                     return
                 }
-                self.users = users
+                self.usersViewModels = users.map {
+                    let viewModel = UserItemViewModel(model: $0, viewHistoryLocalDataSource: self.dependencies.viewHistoryLocalDataSource)
+                    
+                    viewModel.onTapSubject
+                        .sink { [weak self] model in
+                            guard let self else { return }
+                            self.userViewModelTapped.send(model)
+                        }
+                        .store(in: &self.cancellables)
+                    
+                    return viewModel
+                }
                 self.state = .results
             }
             .store(in: &cancellables)
     }
     
-    func getMoreUsers(after model: UserResponseModel) {
-        guard model.id == users.last?.id, !isLoadingPagination else { return }
+    func getMoreUsers(after viewModel: UserItemViewModel) {
+        guard viewModel.id == usersViewModels.last?.id, !isLoadingPagination else { return }
         
         isLoadingPagination = true
         
@@ -161,7 +193,18 @@ extension SearchViewModel {
                 }
             } receiveValue: { [weak self] users in
                 guard let self else { return }
-                self.users += users
+                self.usersViewModels += users.map {
+                    let viewModel = UserItemViewModel(model: $0, viewHistoryLocalDataSource: self.dependencies.viewHistoryLocalDataSource)
+                    
+                    viewModel.onTapSubject
+                        .sink { [weak self] model in
+                            guard let self else { return }
+                            self.userViewModelTapped.send(model)
+                        }
+                        .store(in: &self.cancellables)
+                    
+                    return viewModel
+                }
             }
             .store(in: &cancellables)
     }
