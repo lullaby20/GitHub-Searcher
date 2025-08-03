@@ -10,7 +10,7 @@ import Combine
 
 final class UserDetailsViewModel: ObservableObject {
     typealias Dependencies =
-        HasUserDetailsRemoteDataSource &
+        HasUserDetailsRepository &
         HasViewHistoryLocalDataSource
     
     enum RepositoriesState {
@@ -22,7 +22,7 @@ final class UserDetailsViewModel: ObservableObject {
     
     private let model: UserResponseModel
     private let dependencies: Dependencies
-    private let remoteDataSource: UserDetailsRemoteDataSource
+    private let repository: UserDetailsRepository
     
     private(set) var repositoriesViewModels: [RepositoryItemViewModel] = []
     private var cancellables: Set<AnyCancellable> = .init()
@@ -42,7 +42,7 @@ final class UserDetailsViewModel: ObservableObject {
          dependencies: Dependencies) {
         self.model = model
         self.dependencies = dependencies
-        self.remoteDataSource = dependencies.userDetailsRemoteDataSource
+        self.repository = dependencies.userDetailsRepository
     }
 }
 
@@ -50,7 +50,7 @@ extension UserDetailsViewModel {
     func getRepositories() {
         repositoriesState = .loading
         
-        remoteDataSource.getRepositories(by: name)
+        repository.getRepositories(by: name)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] status in
                 guard let self else { return }

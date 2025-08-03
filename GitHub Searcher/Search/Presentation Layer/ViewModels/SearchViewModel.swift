@@ -11,7 +11,7 @@ import Combine
 final class SearchViewModel: ObservableObject {
     typealias Dependencies =
         HasSearchRepository &
-        HasUserDetailsRemoteDataSource &
+        HasUserDetailsRepository &
         HasViewHistoryLocalDataSource
     
     enum State {

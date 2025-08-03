@@ -19,8 +19,8 @@ protocol HasSearchRepository {
     var searchRepository: SearchRepository { get }
 }
 
-protocol HasUserDetailsRemoteDataSource {
-    var userDetailsRemoteDataSource: UserDetailsRemoteDataSource { get }
+protocol HasUserDetailsRepository {
+    var userDetailsRepository: UserDetailsRepository { get }
 }
 
 protocol HasProfileRepository {
@@ -35,7 +35,7 @@ final class Dependencies:
     HasAppConfigUseCase,
     HasAuthorizationRepository,
     HasSearchRepository,
-    HasUserDetailsRemoteDataSource,
+    HasUserDetailsRepository,
     HasProfileRepository,
     HasViewHistoryLocalDataSource {
     private let network: Networking
@@ -54,8 +54,8 @@ final class Dependencies:
         SearchDefaultRepository(remoteDataSource: SearchRemoteDefaultDataSource(network: network))
     }()
     
-    lazy var userDetailsRemoteDataSource: any UserDetailsRemoteDataSource = {
-        UserDetailsRemoteDefaultDataSource(network: network)
+    lazy var userDetailsRepository: any UserDetailsRepository = {
+        UserDetailsDefaultRepository(remoteDataSource: UserDetailsRemoteDefaultDataSource(network: network))
     }()
     
     lazy var profileRepository: any ProfileRepository = {
