@@ -12,7 +12,6 @@ struct RootView: View {
     
     var body: some View {
         contentBodyView
-            .animation(.easeOut(duration: 0.3), value: viewModel.appState)
     }
 }
 
