@@ -17,7 +17,6 @@ final class ProfileViewModel: ObservableObject {
     enum State {
         case loading
         case content
-        case failure
     }
     
     let dependencies: Dependencies
@@ -31,6 +30,7 @@ final class ProfileViewModel: ObservableObject {
     
     @Published var state: State = .loading
     @Published var showLogoutConfirmationDialog: Bool = false
+    @Published var alert: Alert?
     
     var avatarUrl: URL? {
         guard let urlPath = model?.avatarUrlPath else { return nil }
@@ -60,8 +60,8 @@ extension ProfileViewModel {
                 switch status {
                 case .finished:
                     self.state = .content
-                case .failure:
-                    self.state = .failure
+                case .failure(let error):
+                    self.alert = .error(message: error.localizedDescription)
                 }
             } receiveValue: { [weak self] userModel in
                 guard let self else { return }
@@ -73,5 +73,39 @@ extension ProfileViewModel {
     func logout() {
         appConfigUseCase.changeAppState(to: .unauthorized)
         viewHistoryRepository.clearAll()
+    }
+}
+
+extension ProfileViewModel {
+    enum Alert: Identifiable {
+        case error(message: String)
+        
+        var title: String {
+            switch self {
+            case .error:
+                "Oops..."
+            }
+        }
+        
+        var message: String {
+            switch self {
+            case .error(let message):
+                message
+            }
+        }
+        
+        var dismissButtonTitle: String {
+            switch self {
+            case .error:
+                "OK"
+            }
+        }
+        
+        var id: String {
+            switch self {
+            case .error:
+                "error"
+            }
+        }
     }
 }

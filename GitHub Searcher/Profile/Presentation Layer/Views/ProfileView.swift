@@ -17,6 +17,14 @@ struct ProfileView: View {
                 .onAppear {
                     viewModel.getProfile()
                 }
+                .alert(item: $viewModel.alert) { alert in
+                    switch alert {
+                    case .error(let message):
+                        Alert(title: Text(alert.title),
+                              message: Text(alert.message),
+                              dismissButton: .cancel(Text(alert.dismissButtonTitle)))
+                    }
+                }
                 .confirmationDialog("Are you sure you want to log out?",
                                     isPresented: $viewModel.showLogoutConfirmationDialog,
                                     titleVisibility: .visible) {
@@ -41,22 +49,15 @@ struct ProfileView: View {
 fileprivate extension ProfileView {
     @ViewBuilder
     var contentBodyView: some View {
-        switch viewModel.state {
-        case .loading:
-            ProfileLoadingView()
-        case .content:
-            contentView
-        case .failure:
-            FailureView()
-        }
-    }
-    
-    var contentView: some View {
         VStack(spacing: 8) {
-            avatarView
-            
-            nameView
-                .padding(.bottom, 8)
+            switch viewModel.state {
+            case .loading:
+                userInfoLoadingView
+                    .padding(.bottom, 8)
+            case .content:
+                userInfoView
+                    .padding(.bottom, 8)
+            }
             
             viewHistoryView
                 .padding(.bottom, 40)
@@ -66,6 +67,26 @@ fileprivate extension ProfileView {
             Spacer()
         }
         .padding(.horizontal, 16)
+    }
+    
+    var userInfoView: some View {
+        VStack(spacing: 8) {
+            avatarView
+            
+            nameView
+        }
+    }
+    
+    var userInfoLoadingView: some View {
+        VStack(spacing: 8) {
+            Circle()
+                .fill(Color(.systemGray2))
+                .frame(width: 120, height: 120)
+            
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color(.systemGray2))
+                .frame(width: 120, height: 20)
+        }
     }
     
     var avatarView: some View {
