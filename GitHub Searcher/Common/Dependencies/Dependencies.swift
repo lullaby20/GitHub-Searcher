@@ -42,7 +42,8 @@ final class Dependencies:
     private let keychainSecureStorage: KeychainSecureStorage
     
     lazy var appConfigUseCase: any AppConfigUseCase = {
-        AppConfigDefaultUseCase(keychainSecureStorage: keychainSecureStorage)
+        AppConfigDefaultUseCase(keychainSecureStorage: keychainSecureStorage,
+                                userDefaultsStorage: UserDefaults())
     }()
     
     lazy var authorizationRepository: any AuthorizationRepository = {

@@ -10,9 +10,12 @@ import Combine
 
 final class AppConfigDefaultUseCase: AppConfigUseCase {
     private let keychainSecureStorage: KeychainSecureStorage
+    private let userDefaultsStorage: UserDefaultsStorage
     
-    init(keychainSecureStorage: KeychainSecureStorage) {
+    init(keychainSecureStorage: KeychainSecureStorage,
+         userDefaultsStorage: UserDefaultsStorage) {
         self.keychainSecureStorage = keychainSecureStorage
+        self.userDefaultsStorage = userDefaultsStorage
     }
     
     lazy var appStateSubject: CurrentValueSubject<AppState, Never> = {
@@ -20,7 +23,7 @@ final class AppConfigDefaultUseCase: AppConfigUseCase {
     }()
     
     func changeAppState(to newState: AppState) {
-        UserDefaults.standard.set(newState.rawValue, forKey: "AppStateRawKey")
+        userDefaultsStorage.set(newState.rawValue, forKey: "AppStateRawKey")
         
         if newState == .unauthorized {
             keychainSecureStorage.removeValue(for: .accessToken)
@@ -32,7 +35,7 @@ final class AppConfigDefaultUseCase: AppConfigUseCase {
 
 fileprivate extension AppConfigDefaultUseCase {
     func loadAppState() -> AppState {
-        if let rawValue = UserDefaults.standard.string(forKey: "AppStateRawKey"),
+        if let rawValue = userDefaultsStorage.string(forKey: "AppStateRawKey"),
            let state = AppState(rawValue: rawValue) {
             return state
         }
