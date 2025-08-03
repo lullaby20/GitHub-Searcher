@@ -56,7 +56,7 @@ extension UserDetailsViewModel {
                 guard let self else { return }
                 switch status {
                 case .finished:
-                    self.repositoriesState = .content
+                    return
                 case .failure(let error):
                     self.repositoriesState = .failure
                 }
@@ -77,6 +77,7 @@ extension UserDetailsViewModel {
                     
                     return viewModel
                 }
+                self.repositoriesState = .content
             }
             .store(in: &cancellables)
     }
