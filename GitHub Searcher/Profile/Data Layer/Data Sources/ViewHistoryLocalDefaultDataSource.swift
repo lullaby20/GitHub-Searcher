@@ -54,7 +54,7 @@ final class ViewHistoryLocalDefaultDataSource: ViewHistoryLocalDataSource {
     }
     
     func append(_ repository: RepositoryResponseModel) {
-        if repositories.count >= 30 {
+        if repositories.count >= 20 {
             repositories.removeFirst()
         }
         
@@ -62,7 +62,7 @@ final class ViewHistoryLocalDefaultDataSource: ViewHistoryLocalDataSource {
     }
     
     func append(_ user: UserResponseModel) {
-        if users.count >= 30 {
+        if users.count >= 20 {
             users.removeFirst()
         }
         
