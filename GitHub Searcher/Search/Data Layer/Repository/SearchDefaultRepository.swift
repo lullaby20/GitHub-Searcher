@@ -24,6 +24,7 @@ extension SearchDefaultRepository: SearchRepository {
     // MARK: - Repositories
     func getRepositories(by query: String, sortType: RepositoriesSortType) -> AnyPublisher<[RepositoryResponseModel], any Error> {
         currentPage = 1
+        currentCount = 30
         
         return remoteDataSource.getRepositories(by: query, sortType: sortType, perPage: perPageCount, page: currentPage)
             .tryMap {
@@ -53,9 +54,13 @@ extension SearchDefaultRepository: SearchRepository {
     
     // MARK: - Users
     func getUsers(by query: String) -> AnyPublisher<[UserResponseModel], any Error> {
-        remoteDataSource.getUsers(by: query)
+        currentPage = 1
+        currentCount = 30
+        
+        return remoteDataSource.getUsers(by: query, perPage: perPageCount, page: currentPage)
             .tryMap {
                 self.totalCount = $0.totalCount
+                self.currentCount = 30
                 
                 return $0.items
             }
@@ -68,7 +73,7 @@ extension SearchDefaultRepository: SearchRepository {
                 .eraseToAnyPublisher()
         }
         
-        return remoteDataSource.getUsers(by: query)
+        return remoteDataSource.getUsers(by: query, perPage: perPageCount, page: currentPage + 1)
             .tryMap {
                 self.totalCount = $0.totalCount
                 self.currentPage += 1
