@@ -8,11 +8,19 @@
 import SwiftUI
 
 struct AuthorizationView: View {
+    @ObservedObject var viewModel: AuthorizationViewModel
     @Environment(\.colorScheme) var colorScheme
-    let viewModel: AuthorizationViewModel
     
     var body: some View {
         contentBodyView
+            .alert(item: $viewModel.alert) { alert in
+                switch alert {
+                case .error(let message):
+                    Alert(title: Text(alert.title),
+                          message: Text(alert.message),
+                          dismissButton: .cancel(Text(alert.dismissButtonTitle)))
+                }
+            }
     }
 }
 
