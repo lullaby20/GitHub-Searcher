@@ -101,7 +101,7 @@ fileprivate extension UserDetailsView {
                                    systemImage: "magnifyingglass",
                                    description: Text("Maybe this user is working on something awesome in private."))
         case .failure:
-            FailureView()
+            FailureView(onTryAgain: { viewModel.getRepositories() })
         }
     }
 }
