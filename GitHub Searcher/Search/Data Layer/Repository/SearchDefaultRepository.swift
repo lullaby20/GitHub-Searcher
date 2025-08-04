@@ -1,0 +1,86 @@
+//
+//  SearchDefaultRepository.swift
+//  GitHub Searcher
+//
+//  Created by Daniyar Merekeyev on 31.07.2025.
+//
+
+import Foundation
+import Combine
+
+final class SearchDefaultRepository {
+    private let remoteDataSource: SearchRemoteDataSource
+    private let perPageCount: Int = 30
+    private var totalCount: Int = 0
+    private var currentCount: Int = 30
+    private var currentPage: Int = 1
+    
+    init(remoteDataSource: SearchRemoteDataSource) {
+        self.remoteDataSource = remoteDataSource
+    }
+}
+
+extension SearchDefaultRepository: SearchRepository {
+    // MARK: - Repositories
+    func getRepositories(by query: String, sortType: RepositoriesSortType) -> AnyPublisher<[RepositoryResponseModel], any Error> {
+        currentPage = 1
+        currentCount = 30
+        
+        return remoteDataSource.getRepositories(by: query, sortType: sortType, perPage: perPageCount, page: currentPage)
+            .tryMap {
+                self.totalCount = $0.totalCount
+                
+                return $0.items
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func getMoreRepositories(by query: String, sortType: RepositoriesSortType) -> AnyPublisher<[RepositoryResponseModel], any Error> {
+        guard currentCount < totalCount else {
+            return Empty()
+                .eraseToAnyPublisher()
+        }
+        
+        return remoteDataSource.getRepositories(by: query, sortType: sortType, perPage: perPageCount, page: currentPage + 1)
+            .tryMap {
+                self.totalCount = $0.totalCount
+                self.currentPage += 1
+                self.currentCount += 30
+                
+                return $0.items
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    // MARK: - Users
+    func getUsers(by query: String) -> AnyPublisher<[UserResponseModel], any Error> {
+        currentPage = 1
+        currentCount = 30
+        
+        return remoteDataSource.getUsers(by: query, perPage: perPageCount, page: currentPage)
+            .tryMap {
+                self.totalCount = $0.totalCount
+                self.currentCount = 30
+                
+                return $0.items
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func getMoreUsers(by query: String) -> AnyPublisher<[UserResponseModel], any Error> {
+        guard currentCount < totalCount else {
+            return Empty()
+                .eraseToAnyPublisher()
+        }
+        
+        return remoteDataSource.getUsers(by: query, perPage: perPageCount, page: currentPage + 1)
+            .tryMap {
+                self.totalCount = $0.totalCount
+                self.currentPage += 1
+                self.currentCount += 30
+                
+                return $0.items
+            }
+            .eraseToAnyPublisher()
+    }
+}
